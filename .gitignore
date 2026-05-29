@@ -1,3 +1,5 @@
 .env
+.env.test
 .claude/
 CLAUDE.md
+*.bak

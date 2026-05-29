@@ -1,0 +1,1533 @@
+{
+  "info": {
+    "_postman_id": "one-check-api-collection",
+    "name": "One Check API",
+    "description": "Coleção de testes da One Check API. Importe no Insomnia via File → Import.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",      "value": "http://localhost:8000", "type": "string" },
+    { "key": "access_token",  "value": "", "type": "string" },
+    { "key": "refresh_token", "value": "", "type": "string" },
+    { "key": "temp_token",    "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "📁 Fase 1 — Fundação",
+      "item": [
+        {
+          "name": "⚙️ Sistema",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Health check",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/health",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "health"]
+                    },
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "description": "Verifica se a API está no ar e retorna status ok"
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"dados\" deve ser um objeto', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('object');",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.status deve ser \"ok\"', () => {",
+                          "        insomnia.expect(body.dados.status).to.equal('ok');",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.versao deve ser \"v1\"', () => {",
+                          "        insomnia.expect(body.dados.versao).to.equal('v1');",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.horario deve ser uma string', () => {",
+                          "        insomnia.expect(body.dados.horario).to.be.a('string');",
+                          "        insomnia.expect(body.dados.horario.length).to.be.greaterThan(0);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Content-Type deve conter application/json', () => {",
+                          "        const ct = insomnia.response.headers.find(",
+                          "            h => h.name.toLowerCase() === 'content-type'",
+                          "        );",
+                          "        insomnia.expect(ct).to.exist;",
+                          "        insomnia.expect(ct.value).to.include('application/json');",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor campos sensiveis', () => {",
+                          "        insomnia.expect(body.senha_hash).to.not.exist;",
+                          "        insomnia.expect(body.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Rota inexistente → 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/rota-que-nao-existe",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "rota-que-nao-existe"]
+                    },
+                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "description": "Qualquer rota não cadastrada deve retornar 404 em JSON com o padrão de erro da API"
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"erro\" deve ser uma string', () => {",
+                          "        insomnia.expect(body.erro).to.be.a('string');",
+                          "        insomnia.expect(body.erro.length).to.be.greaterThan(0);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Mensagem deve conter \"encontrada\"', () => {",
+                          "        insomnia.expect(body.erro.toLowerCase()).to.include('encontrada');",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor campo \"erros\" (plural)', () => {",
+                          "        insomnia.expect(body.erros).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.test('Content-Type deve conter application/json', () => {",
+                          "        const ct = insomnia.response.headers.find(",
+                          "            h => h.name.toLowerCase() === 'content-type'",
+                          "        );",
+                          "        insomnia.expect(ct).to.exist;",
+                          "        insomnia.expect(ct.value).to.include('application/json');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Método não suportado → 404",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/health",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "health"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept", "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "POST em rota que só aceita GET deve retornar 404"
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"erro\" deve ser uma string', () => {",
+                          "        insomnia.expect(body.erro).to.be.a('string');",
+                          "        insomnia.expect(body.erro.length).to.be.greaterThan(0);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor stack trace ou dados internos', () => {",
+                          "        insomnia.expect(body.trace).to.not.exist;",
+                          "        insomnia.expect(body.file).to.not.exist;",
+                          "        insomnia.expect(body.line).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.test('Content-Type deve conter application/json', () => {",
+                          "        const ct = insomnia.response.headers.find(",
+                          "            h => h.name.toLowerCase() === 'content-type'",
+                          "        );",
+                          "        insomnia.expect(ct).to.exist;",
+                          "        insomnia.expect(ct.value).to.include('application/json');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📁 Fase 2 — Auth + MFA",
+      "item": [
+        {
+          "name": "🔐 Login",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Login valido sem MFA retorna tokens",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/login",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "login"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"admin@onecheck.com.br\",\n  \"senha\": \"Admin@1234\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Login do admin padrão (seed). Salva access_token e refresh_token no environment para os próximos requests."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('access_token deve ser uma string nao vazia', () => {",
+                          "        insomnia.expect(body.dados.access_token).to.be.a('string');",
+                          "        insomnia.expect(body.dados.access_token.length).to.be.greaterThan(10);",
+                          "    });",
+                          "",
+                          "    insomnia.test('refresh_token deve ser uma string nao vazia', () => {",
+                          "        insomnia.expect(body.dados.refresh_token).to.be.a('string');",
+                          "        insomnia.expect(body.dados.refresh_token.length).to.be.greaterThan(10);",
+                          "    });",
+                          "",
+                          "    insomnia.test('usuario deve conter id, nome, email e role', () => {",
+                          "        const u = body.dados.usuario;",
+                          "        insomnia.expect(u).to.be.an('object');",
+                          "        insomnia.expect(u.id).to.be.a('string');",
+                          "        insomnia.expect(u.nome).to.be.a('string');",
+                          "        insomnia.expect(u.email).to.be.a('string');",
+                          "        insomnia.expect(u.role).to.equal('admin');",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve retornar mfa_required', () => {",
+                          "        insomnia.expect(body.dados.mfa_required).to.not.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor senha_hash nem mfa_secret', () => {",
+                          "        const u = body.dados.usuario || {};",
+                          "        insomnia.expect(u.senha_hash).to.not.exist;",
+                          "        insomnia.expect(u.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('access_token',  body.dados.access_token);",
+                          "    insomnia.environment.set('refresh_token', body.dados.refresh_token);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Login com MFA ativo retorna mfa_required e temp_token",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/login",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "login"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"usuario_com_mfa@onecheck.com.br\",\n  \"senha\": \"Senha@1234\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Requer um usuário com MFA ativo no banco. Crie manualmente ou via /test-fase 3 após ter a Fase 3 implementada."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('mfa_required deve ser true', () => {",
+                          "        insomnia.expect(body.dados.mfa_required).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('temp_token deve ser uma string nao vazia', () => {",
+                          "        insomnia.expect(body.dados.temp_token).to.be.a('string');",
+                          "        insomnia.expect(body.dados.temp_token.length).to.be.greaterThan(10);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve retornar access_token nem refresh_token', () => {",
+                          "        insomnia.expect(body.dados.access_token).to.not.exist;",
+                          "        insomnia.expect(body.dados.refresh_token).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('temp_token', body.dados.temp_token);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Email nao cadastrado → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/login",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "login"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"naoexiste@onecheck.com.br\",\n  \"senha\": \"Qualquer@1234\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"erro\" deve ser uma string', () => {",
+                          "        insomnia.expect(body.erro).to.be.a('string');",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve vazar qual campo esta errado', () => {",
+                          "        insomnia.expect(body.erro.toLowerCase()).to.not.include('email nao');",
+                          "        insomnia.expect(body.erro.toLowerCase()).to.include('credencial');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Senha incorreta → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/login",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "login"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"admin@onecheck.com.br\",\n  \"senha\": \"SenhaErrada@9999\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Mensagem generica — nao revela qual campo esta errado', () => {",
+                          "        insomnia.expect(body.erro.toLowerCase()).to.include('credencial');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Email invalido → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/login",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "login"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"nao-e-um-email\",\n  \"senha\": \"Qualquer@1234\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"erros\" deve ser um objeto com erro em email', () => {",
+                          "        insomnia.expect(body.erros).to.be.an('object');",
+                          "        insomnia.expect(body.erros.email).to.be.a('string');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Body vazio → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/login",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "login"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('erros deve ter pelo menos um campo', () => {",
+                          "        insomnia.expect(body.erros).to.be.an('object');",
+                          "        insomnia.expect(Object.keys(body.erros).length).to.be.greaterThan(0);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔑 MFA — Verificacao",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Codigo TOTP correto completa o login",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/verify",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"temp_token\": \"{{temp_token}}\",\n  \"codigo\": \"000000\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Substitua 000000 pelo código TOTP real do app autenticador. Requer temp_token setado pelo login com MFA."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('access_token deve ser uma string nao vazia', () => {",
+                          "        insomnia.expect(body.dados.access_token).to.be.a('string');",
+                          "        insomnia.expect(body.dados.access_token.length).to.be.greaterThan(10);",
+                          "    });",
+                          "",
+                          "    insomnia.test('refresh_token deve ser uma string nao vazia', () => {",
+                          "        insomnia.expect(body.dados.refresh_token).to.be.a('string');",
+                          "    });",
+                          "",
+                          "    insomnia.test('usuario deve ter id, nome, email e role', () => {",
+                          "        const u = body.dados.usuario;",
+                          "        insomnia.expect(u.id).to.be.a('string');",
+                          "        insomnia.expect(u.email).to.be.a('string');",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('access_token',  body.dados.access_token);",
+                          "    insomnia.environment.set('refresh_token', body.dados.refresh_token);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Codigo TOTP incorreto → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/verify",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"temp_token\": \"{{temp_token}}\",\n  \"codigo\": \"999999\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Temp token invalido → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/verify",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"temp_token\": \"token.invalido.aqui\",\n  \"codigo\": \"123456\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Codigo com tamanho errado → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/verify",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"temp_token\": \"{{temp_token}}\",\n  \"codigo\": \"12345\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('erros deve ter campo codigo', () => {",
+                          "        insomnia.expect(body.erros).to.be.an('object');",
+                          "        insomnia.expect(body.erros.codigo).to.be.a('string');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔄 Refresh Token",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Refresh token valido renova o access token",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/refresh",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "refresh"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Requer refresh_token setado pelo login. Atualiza os tokens no environment."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Novo access_token deve ser retornado', () => {",
+                          "        insomnia.expect(body.dados.access_token).to.be.a('string');",
+                          "        insomnia.expect(body.dados.access_token.length).to.be.greaterThan(10);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Novo refresh_token deve ser retornado', () => {",
+                          "        insomnia.expect(body.dados.refresh_token).to.be.a('string');",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('access_token',  body.dados.access_token);",
+                          "    insomnia.environment.set('refresh_token', body.dados.refresh_token);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Refresh token invalido → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/refresh",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "refresh"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refresh_token\": \"token_invalido_aqui\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Body sem refresh_token → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/refresh",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "refresh"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('erros deve ter campo refresh_token', () => {",
+                          "        insomnia.expect(body.erros).to.be.an('object');",
+                          "        insomnia.expect(body.erros.refresh_token).to.be.a('string');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🚪 Logout",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Logout invalida o refresh token",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/logout",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "logout"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Requer access_token e refresh_token válidos no environment."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    insomnia.test('Status HTTP deve ser 204', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(204);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Resposta deve ser valida', () => {",
+                          "        insomnia.expect.fail('Erro inesperado: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem token de auth → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/logout",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "logout"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refresh_token\": \"qualquer\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Token JWT invalido → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/logout",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "logout"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer eyJtoken.invalido.aqui" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refresh_token\": \"qualquer\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor detalhes internos do JWT', () => {",
+                          "        insomnia.expect(body.trace).to.not.exist;",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📱 MFA — Setup e Ativacao",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Setup MFA retorna otpauth URI",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/setup",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "setup"]
+                    },
+                    "header": [
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                    ],
+                    "description": "Gera o secret TOTP e retorna a URI para configurar o app autenticador."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('otpauth_uri deve comecar com otpauth://', () => {",
+                          "        insomnia.expect(body.dados.otpauth_uri).to.be.a('string');",
+                          "        insomnia.expect(body.dados.otpauth_uri).to.match(/^otpauth:\\/\\//);",
+                          "    });",
+                          "",
+                          "    insomnia.test('otpauth_uri deve conter o issuer One Check', () => {",
+                          "        insomnia.expect(body.dados.otpauth_uri).to.include('One%20Check');",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve retornar o mfa_secret em texto plano', () => {",
+                          "        insomnia.expect(body.dados.mfa_secret).to.not.exist;",
+                          "        insomnia.expect(body.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Setup sem auth → 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/setup",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "setup"]
+                    },
+                    "header": [{ "key": "Accept", "value": "application/json" }]
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Ativar MFA com codigo errado → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/activate",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "activate"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"codigo\": \"000000\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Código 000000 quase certamente é inválido. Verifica que código errado retorna 422/401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422 ou 401', () => {",
+                          "        insomnia.expect([401, 422]).to.include(insomnia.response.status);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔒 MFA — Desativacao (admin)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin desativa MFA de um usuario",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/disable",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"usuario_id\": \"{{usuario_com_mfa_id}}\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Substitua {{usuario_com_mfa_id}} pelo UUID real de um usuário com MFA ativo."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('mensagem de confirmacao deve existir', () => {",
+                          "        insomnia.expect(body.dados.mensagem).to.be.a('string');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem auth → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/disable",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                    },
+                    "header": [
+                      { "key": "Content-Type", "value": "application/json" },
+                      { "key": "Accept",       "value": "application/json" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"usuario_id\": \"00000000-0000-4000-8000-000000000000\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Nao admin → 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/disable",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token_locatario}}" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"usuario_id\": \"00000000-0000-4000-8000-000000000000\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    },
+                    "description": "Requer access_token de um usuário com role locatario ou vistoriador. Sete {{access_token_locatario}} manualmente ou via Fase 3."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 403', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(403);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "usuario_id com UUID invalido → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/disable",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"usuario_id\": \"nao-e-um-uuid\"\n}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('erros deve ter campo usuario_id', () => {",
+                          "        insomnia.expect(body.erros).to.be.an('object');",
+                          "        insomnia.expect(body.erros.usuario_id).to.be.a('string');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "usuario_id ausente no body → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/auth/mfa/disable",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                    },
+                    "header": [
+                      { "key": "Content-Type",  "value": "application/json" },
+                      { "key": "Accept",        "value": "application/json" },
+                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": { "raw": { "language": "json" } }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
