@@ -95,8 +95,9 @@ class Validator
             return null;
         }
 
-        if (is_numeric($valor)) {
-            if ((float) $valor < $minimo) {
+        // Valores numéricos reais (int/float) são comparados por valor; strings pela quantidade de caracteres.
+        if (is_int($valor) || is_float($valor)) {
+            if ($valor < $minimo) {
                 return "O campo {$campo} deve ser no mínimo {$minimo}.";
             }
         } elseif (mb_strlen((string) $valor) < $minimo) {
@@ -112,8 +113,9 @@ class Validator
             return null;
         }
 
-        if (is_numeric($valor)) {
-            if ((float) $valor > $maximo) {
+        // Valores numéricos reais (int/float) são comparados por valor; strings pela quantidade de caracteres.
+        if (is_int($valor) || is_float($valor)) {
+            if ($valor > $maximo) {
                 return "O campo {$campo} deve ser no máximo {$maximo}.";
             }
         } elseif (mb_strlen((string) $valor) > $maximo) {

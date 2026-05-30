@@ -6,10 +6,26 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url",      "value": "http://localhost:8000", "type": "string" },
-    { "key": "access_token",  "value": "", "type": "string" },
-    { "key": "refresh_token", "value": "", "type": "string" },
-    { "key": "temp_token",    "value": "", "type": "string" }
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "temp_token",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -27,10 +43,21 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/health",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "health"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "health"
+                      ]
                     },
-                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
                     "description": "Verifica se a API está no ar e retorna status ok"
                   },
                   "event": [
@@ -101,10 +128,21 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/rota-que-nao-existe",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "rota-que-nao-existe"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "rota-que-nao-existe"
+                      ]
                     },
-                    "header": [{ "key": "Accept", "value": "application/json" }],
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
                     "description": "Qualquer rota não cadastrada deve retornar 404 em JSON com o padrão de erro da API"
                   },
                   "event": [
@@ -161,17 +199,33 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/health",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "health"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "health"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept", "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "POST em rota que só aceita GET deve retornar 404"
                   },
@@ -242,17 +296,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/login",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "login"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"admin@onecheck.com.br\",\n  \"senha\": \"Admin@1234\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Login do admin padrão (seed). Salva access_token e refresh_token no environment para os próximos requests."
                   },
@@ -321,17 +392,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/login",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "login"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"usuario_com_mfa@onecheck.com.br\",\n  \"senha\": \"Senha@1234\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Requer um usuário com MFA ativo no banco. Crie manualmente ou via /test-fase 3 após ter a Fase 3 implementada."
                   },
@@ -385,17 +473,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/login",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "login"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"naoexiste@onecheck.com.br\",\n  \"senha\": \"Qualquer@1234\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -440,17 +545,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/login",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "login"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"admin@onecheck.com.br\",\n  \"senha\": \"SenhaErrada@9999\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -490,17 +612,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/login",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "login"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"email\": \"nao-e-um-email\",\n  \"senha\": \"Qualquer@1234\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -541,17 +680,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/login",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "login"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "login"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -598,17 +754,35 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/verify",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "verify"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"temp_token\": \"{{temp_token}}\",\n  \"codigo\": \"000000\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Substitua 000000 pelo código TOTP real do app autenticador. Requer temp_token setado pelo login com MFA."
                   },
@@ -664,17 +838,35 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/verify",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "verify"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"temp_token\": \"{{temp_token}}\",\n  \"codigo\": \"999999\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -710,17 +902,35 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/verify",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "verify"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"temp_token\": \"token.invalido.aqui\",\n  \"codigo\": \"123456\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -756,17 +966,35 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/verify",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "verify"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "verify"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"temp_token\": \"{{temp_token}}\",\n  \"codigo\": \"12345\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -813,17 +1041,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/refresh",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "refresh"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "refresh"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Requer refresh_token setado pelo login. Atualiza os tokens no environment."
                   },
@@ -873,17 +1118,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/refresh",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "refresh"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "refresh"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"refresh_token\": \"token_invalido_aqui\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -919,17 +1181,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/refresh",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "refresh"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "refresh"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -976,18 +1255,38 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/logout",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "logout"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "logout"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Requer access_token e refresh_token válidos no environment."
                   },
@@ -1023,17 +1322,34 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/logout",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "logout"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "logout"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"refresh_token\": \"qualquer\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -1069,18 +1385,38 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/logout",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "logout"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "logout"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer eyJtoken.invalido.aqui" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer eyJtoken.invalido.aqui"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"refresh_token\": \"qualquer\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -1126,12 +1462,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/setup",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "setup"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "setup"
+                      ]
                     },
                     "header": [
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Gera o secret TOTP e retorna a URI para configurar o app autenticador."
                   },
@@ -1187,10 +1537,23 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/setup",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "setup"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "setup"
+                      ]
                     },
-                    "header": [{ "key": "Accept", "value": "application/json" }]
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ]
                   },
                   "event": [
                     {
@@ -1225,18 +1588,39 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/activate",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "activate"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "activate"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"codigo\": \"000000\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Código 000000 quase certamente é inválido. Verifica que código errado retorna 422/401."
                   },
@@ -1283,18 +1667,39 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/disable",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "disable"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"usuario_id\": \"{{usuario_com_mfa_id}}\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Substitua {{usuario_com_mfa_id}} pelo UUID real de um usuário com MFA ativo."
                   },
@@ -1340,17 +1745,35 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/disable",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "disable"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type", "value": "application/json" },
-                      { "key": "Accept",       "value": "application/json" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"usuario_id\": \"00000000-0000-4000-8000-000000000000\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -1386,18 +1809,39 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/disable",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "disable"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token_locatario}}" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token_locatario}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"usuario_id\": \"00000000-0000-4000-8000-000000000000\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     },
                     "description": "Requer access_token de um usuário com role locatario ou vistoriador. Sete {{access_token_locatario}} manualmente ou via Fase 3."
                   },
@@ -1434,18 +1878,39 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/disable",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "disable"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{\n  \"usuario_id\": \"nao-e-um-uuid\"\n}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -1482,18 +1947,39 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/auth/mfa/disable",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "auth", "mfa", "disable"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "auth",
+                        "mfa",
+                        "disable"
+                      ]
                     },
                     "header": [
-                      { "key": "Content-Type",  "value": "application/json" },
-                      { "key": "Accept",        "value": "application/json" },
-                      { "key": "Authorization", "value": "Bearer {{access_token}}" }
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
                       "raw": "{}",
-                      "options": { "raw": { "language": "json" } }
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
                     }
                   },
                   "event": [
@@ -1518,6 +2004,1467 @@
                           "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
                           "    });",
                           "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📁 Fase 3 — Usuários",
+      "item": [
+        {
+          "name": "👤 Criar Usuario (POST /api/v1/usuarios)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cria usuario valido retorna 201 com UUID",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Novo Vistoriador\",\n  \"email\": \"vistoriador@teste.com\",\n  \"senha\": \"Teste@1234\",\n  \"role\": \"vistoriador\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Admin cria um usuário com dados válidos. Salva o ID gerado em {{usuario_id}} e o e-mail em {{usuario_email}} para os próximos requests."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.id deve ser um UUID v4 valido', () => {",
+                          "        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+                          "        insomnia.expect(body.dados.id).to.match(uuidRegex);",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.nome deve ser a string enviada', () => {",
+                          "        insomnia.expect(body.dados.nome).to.equal('Novo Vistoriador');",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.role deve ser vistoriador', () => {",
+                          "        insomnia.expect(body.dados.role).to.equal('vistoriador');",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor senha_hash nem mfa_secret', () => {",
+                          "        insomnia.expect(body.dados.senha_hash).to.not.exist;",
+                          "        insomnia.expect(body.dados.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('usuario_id', body.dados.id);",
+                          "    insomnia.environment.set('usuario_email', body.dados.email);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Body vazio retorna 422 com erros por campo",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Body completamente vazio deve retornar 422 com erros para cada campo obrigatório."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"erros\" deve ser um objeto nao vazio', () => {",
+                          "        insomnia.expect(body.erros).to.be.an('object');",
+                          "        insomnia.expect(Object.keys(body.erros).length).to.be.greaterThan(0);",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Email duplicado retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Outro Admin\",\n  \"email\": \"admin@onecheck.com.br\",\n  \"senha\": \"Teste@1234\",\n  \"role\": \"locatario\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Tenta criar com e-mail já cadastrado (admin do seed). Deve retornar 422 com mensagem clara."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"erro\" deve mencionar e-mail', () => {",
+                          "        insomnia.expect(body.erro.toLowerCase()).to.include('e-mail');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Senha fraca (menos de 8 chars) retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Usuario Fraco\",\n  \"email\": \"fraco@teste.com\",\n  \"senha\": \"123\",\n  \"role\": \"locatario\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Senha com menos de 8 caracteres deve retornar 422 com erro no campo 'senha'."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Erro deve estar no campo \"senha\"', () => {",
+                          "        insomnia.expect(body.erros.senha).to.be.a('string');",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Role invalida retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Usuario Role Invalida\",\n  \"email\": \"role@teste.com\",\n  \"senha\": \"Teste@1234\",\n  \"role\": \"superadmin\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Role fora do enum permitido (admin, vistoriador, locatario)."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('Erro deve estar no campo \"role\"', () => {",
+                          "        insomnia.expect(body.erros.role).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Teste\",\n  \"email\": \"teste@teste.com\",\n  \"senha\": \"Teste@1234\",\n  \"role\": \"locatario\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Sem header Authorization deve retornar 401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📋 Listar Usuarios (GET /api/v1/usuarios)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin lista usuarios com paginacao",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios?pagina=1&por_pagina=10",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ],
+                      "query": [
+                        {
+                          "key": "pagina",
+                          "value": "1"
+                        },
+                        {
+                          "key": "por_pagina",
+                          "value": "10"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Lista todos os usuários ativos com paginação."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados deve ser um array', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('array');",
+                          "    });",
+                          "",
+                          "    insomnia.test('paginacao deve ter total, pagina e itensPorPagina', () => {",
+                          "        insomnia.expect(body.paginacao.total).to.be.a('number');",
+                          "        insomnia.expect(body.paginacao.pagina).to.equal(1);",
+                          "        insomnia.expect(body.paginacao.itensPorPagina).to.equal(10);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor senha_hash em nenhum item', () => {",
+                          "        (body.dados || []).forEach(u => {",
+                          "            insomnia.expect(u.senha_hash).to.not.exist;",
+                          "            insomnia.expect(u.mfa_secret).to.not.exist;",
+                          "        });",
+                          "    });",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Filtro por role=locatario retorna so locatarios",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios?role=locatario",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ],
+                      "query": [
+                        {
+                          "key": "role",
+                          "value": "locatario"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Filtra usuários pela role locatario."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('Todos os usuarios retornados devem ter role=locatario', () => {",
+                          "        (body.dados || []).forEach(u => {",
+                          "            insomnia.expect(u.role).to.equal('locatario');",
+                          "        });",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔍 Buscar Usuario por ID (GET /api/v1/usuarios/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Busca usuario pelo ID salvo em {{usuario_id}}",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/{{usuario_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "{{usuario_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Requer que {{usuario_id}} tenha sido salvo pelo request de criação."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser o usuario_id do environment', () => {",
+                          "        insomnia.expect(body.dados.id).to.equal(insomnia.environment.get('usuario_id'));",
+                          "    });",
+                          "    insomnia.test('Nao deve expor senha_hash', () => {",
+                          "        insomnia.expect(body.dados.senha_hash).to.not.exist;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "ID inexistente retorna 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "UUID válido mas não existente no banco."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "});",
+                          "insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "    insomnia.expect(body.sucesso).to.equal(false);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "✏️ Atualizar Usuario (PUT /api/v1/usuarios/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin atualiza nome do usuario",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/{{usuario_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "{{usuario_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Vistoriador Atualizado\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Atualiza apenas o nome. Campos não enviados permanecem inalterados."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('dados.nome deve ser o novo valor', () => {",
+                          "        insomnia.expect(body.dados.nome).to.equal('Vistoriador Atualizado');",
+                          "    });",
+                          "    insomnia.test('Nao deve expor senha_hash', () => {",
+                          "        insomnia.expect(body.dados.senha_hash).to.not.exist;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Email duplicado retorna 422",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/{{usuario_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "{{usuario_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"admin@onecheck.com.br\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Tenta alterar para um e-mail já usado por outro usuário."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "});",
+                          "insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "    insomnia.expect(body.sucesso).to.equal(false);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "ID inexistente retorna 404",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Inexistente\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "UUID válido mas não existente no banco."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🗑️ Deletar Usuario (DELETE /api/v1/usuarios/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin deleta usuario retorna 204",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/{{usuario_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "{{usuario_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Soft delete — marca o usuário como inativo. Rodar após os testes de busca e atualização."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 204', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(204);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Admin nao pode deletar a propria conta → 422",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/{{admin_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "{{admin_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Requer que {{admin_id}} seja o ID do próprio admin autenticado. Salve-o após o login."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "});",
+                          "insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "    insomnia.expect(body.sucesso).to.equal(false);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "ID inexistente retorna 404",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "UUID válido mas não existente."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "👁️ Perfil Proprio (GET /api/v1/usuarios/me)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Retorna dados do proprio usuario autenticado",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "me"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Qualquer role autenticada pode acessar seus próprios dados. Salva admin_id no environment."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.email deve ser o do usuario autenticado', () => {",
+                          "        insomnia.expect(body.dados.email).to.be.a('string');",
+                          "        insomnia.expect(body.dados.email.length).to.be.greaterThan(0);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor senha_hash nem mfa_secret', () => {",
+                          "        insomnia.expect(body.dados.senha_hash).to.not.exist;",
+                          "        insomnia.expect(body.dados.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('admin_id', body.dados.id);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/me",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "me"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔒 Alterar Senha (PUT /api/v1/usuarios/me/senha)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Altera senha com dados validos retorna 200",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/me/senha",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "me",
+                        "senha"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"senha_atual\": \"Admin@1234\",\n  \"nova_senha\": \"Admin@5678\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Altera a senha do admin. Lembre-se de reverter depois ou ajustar os requests de login."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('Mensagem de confirmacao deve existir', () => {",
+                          "        insomnia.expect(body.dados.mensagem).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Senha atual incorreta retorna 401",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/me/senha",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "me",
+                        "senha"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"senha_atual\": \"SenhaErrada@999\",\n  \"nova_senha\": \"NovaSenha@1234\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "senha_atual incorreta deve retornar 401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "});",
+                          "insomnia.test('Campo \"sucesso\" deve ser false', () => {",
+                          "    insomnia.expect(body.sucesso).to.equal(false);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Nova senha fraca (menos de 8 chars) retorna 422",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/me/senha",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "me",
+                        "senha"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"senha_atual\": \"Admin@1234\",\n  \"nova_senha\": \"123\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "nova_senha com menos de 8 caracteres deve retornar 422."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "});",
+                          "insomnia.test('Erro deve estar no campo nova_senha', () => {",
+                          "    insomnia.expect(body.erros.nova_senha).to.be.a('string');",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios/me/senha",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios",
+                        "me",
+                        "senha"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"senha_atual\": \"Admin@1234\",\n  \"nova_senha\": \"NovaSenha@1234\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "});"
                         ]
                       }
                     }

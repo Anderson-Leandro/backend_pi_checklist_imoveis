@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\UsuarioController;
 use App\Database\Conexao;
 use App\Exceptions\AcessoNegadoException;
 use App\Exceptions\NaoAutorizadoException;
@@ -18,6 +19,7 @@ use App\Router;
 use App\Services\AuthService;
 use App\Services\LogService;
 use App\Services\MfaService;
+use App\Services\UsuarioService;
 use Dotenv\Dotenv;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -39,6 +41,8 @@ $logService        = new LogService($conexao);
 $mfaService        = new MfaService($usuarioModel, $logService);
 $authService       = new AuthService($usuarioModel, $refreshTokenModel, $logService, $mfaService);
 $authController    = new AuthController($authService, $mfaService);
+$usuarioService    = new UsuarioService($usuarioModel, $logService);
+$usuarioController = new UsuarioController($usuarioService);
 $authMiddleware    = new AuthMiddleware();
 $roleMiddleware    = new RoleMiddleware();
 
@@ -64,6 +68,35 @@ $roteador->post('/api/v1/auth/mfa/activate', [$authController, 'ativarMfa'], [
     [$authMiddleware, 'verificar'],
 ]);
 $roteador->post('/api/v1/auth/mfa/disable', [$authController, 'desativarMfa'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// ── Fase 3: usuários ──────────────────────────────────────────────────────────
+// Rotas fixas (/me, /me/senha) devem vir antes da rota dinâmica (/{id})
+$roteador->get('/api/v1/usuarios/me', [$usuarioController, 'obterPerfil'], [
+    [$authMiddleware, 'verificar'],
+]);
+$roteador->put('/api/v1/usuarios/me/senha', [$usuarioController, 'alterarSenha'], [
+    [$authMiddleware, 'verificar'],
+]);
+$roteador->post('/api/v1/usuarios', [$usuarioController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/usuarios', [$usuarioController, 'listar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/usuarios/{id}', [$usuarioController, 'buscarPorId'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->put('/api/v1/usuarios/{id}', [$usuarioController, 'atualizar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->delete('/api/v1/usuarios/{id}', [$usuarioController, 'excluir'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('admin'),
 ]);
