@@ -3475,6 +3475,1824 @@
           ]
         }
       ]
+    },
+    {
+      "name": "📁 Fase 4 — Imoveis, Enderecos e Comodos",
+      "item": [
+        {
+          "name": "🏠 Criar Imovel (POST /api/v1/imoveis)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cria imovel valido retorna 201 com UUID",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"Apartamento\",\n  \"tamanho\": \"75m2\",\n  \"garagem\": true,\n  \"garagem_vagas\": 1\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Cria um imóvel. Salva o ID gerado em {{imovel_id}} para os próximos requests."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser um UUID v4', () => {",
+                          "        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+                          "        insomnia.expect(body.dados.id).to.match(uuidRegex);",
+                          "    });",
+                          "    insomnia.test('dados.tipo deve ser Apartamento', () => {",
+                          "        insomnia.expect(body.dados.tipo).to.equal('Apartamento');",
+                          "    });",
+                          "    insomnia.test('dados.status deve ser disponivel', () => {",
+                          "        insomnia.expect(body.dados.status).to.equal('disponivel');",
+                          "    });",
+                          "    insomnia.test('dados.garagem deve ser 1', () => {",
+                          "        insomnia.expect(body.dados.garagem).to.equal(1);",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('imovel_id', body.dados.id);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Body vazio retorna 422 com erros nos campos obrigatorios",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Campos tipo e tamanho são obrigatórios."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('erros.tipo deve existir', () => { insomnia.expect(body.erros.tipo).to.be.a('string'); });",
+                          "insomnia.test('erros.tamanho deve existir', () => { insomnia.expect(body.erros.tamanho).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"Casa\", \"tamanho\": \"60m2\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode criar imovel retorna 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{locatario_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"Casa\", \"tamanho\": \"60m2\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Requer {{locatario_token}}. Locatário não tem permissão de criar imóveis."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📋 Listar Imoveis (GET /api/v1/imoveis)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin lista imoveis com paginacao",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis?pagina=1&por_pagina=10",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ],
+                      "query": [
+                        {
+                          "key": "pagina",
+                          "value": "1"
+                        },
+                        {
+                          "key": "por_pagina",
+                          "value": "10"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Listagem paginada de todos os imóveis ativos."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('dados deve ser um array', () => { insomnia.expect(body.dados).to.be.an('array'); });",
+                          "    insomnia.test('paginacao.total deve ser um numero', () => { insomnia.expect(body.paginacao.total).to.be.a('number'); });",
+                          "    insomnia.test('paginacao.pagina deve ser 1', () => { insomnia.expect(body.paginacao.pagina).to.equal(1); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Filtro por status=disponivel retorna so disponiveis",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis?status=disponivel",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ],
+                      "query": [
+                        {
+                          "key": "status",
+                          "value": "disponivel"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Filtro por status. Valores válidos: disponivel, locado, em_vistoria."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('Todos os imoveis devem ter status disponivel', () => {",
+                          "    (body.dados || []).forEach(i => insomnia.expect(i.status).to.equal('disponivel'));",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode listar imoveis retorna 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{locatario_token}}"
+                      }
+                    ],
+                    "description": "Locatário não tem acesso à listagem geral."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔍 Buscar Imovel por ID (GET /api/v1/imoveis/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin busca imovel pelo ID salvo em {{imovel_id}}",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Requer {{imovel_id}} salvo pelo request de criação."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('dados.id deve ser o imovel_id do environment', () => {",
+                          "        insomnia.expect(body.dados.id).to.equal(insomnia.environment.get('imovel_id'));",
+                          "    });",
+                          "    insomnia.test('dados.tipo deve ser uma string', () => { insomnia.expect(body.dados.tipo).to.be.a('string'); });",
+                          "    insomnia.test('dados.status deve ser uma string', () => { insomnia.expect(body.dados.status).to.be.a('string'); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "ID inexistente retorna 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "UUID válido mas não existente no banco."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });",
+                          "insomnia.test('Campo \"sucesso\" deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario sem contrato ativo recebe 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{locatario_token}}"
+                      }
+                    ],
+                    "description": "Locatário só pode ver imóvel vinculado ao seu contrato ativo."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "✏️ Atualizar Imovel (PUT /api/v1/imoveis/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin atualiza tipo e status do imovel",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"Casa\",\n  \"status\": \"em_vistoria\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Atualiza campos do imóvel. Apenas campos enviados são alterados."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('dados.tipo deve ser Casa', () => { insomnia.expect(body.dados.tipo).to.equal('Casa'); });",
+                          "    insomnia.test('dados.status deve ser em_vistoria', () => { insomnia.expect(body.dados.status).to.equal('em_vistoria'); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Status invalido retorna 422",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"status\": \"invalido\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "status fora do enum: disponivel, locado, em_vistoria."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "ID inexistente retorna 404",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"Qualquer\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "UUID válido mas não existente."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📍 Endereco do Imovel (POST+GET /api/v1/imoveis/{id}/endereco)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin salva endereco com geocodificacao (POST upsert)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/endereco",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "endereco"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"rua\": \"Avenida Paulista\",\n  \"numero\": \"1578\",\n  \"cidade\": \"Sao Paulo\",\n  \"estado\": \"SP\",\n  \"cep\": \"01310-200\",\n  \"complemento\": \"Apto 42\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Cria ou atualiza o endereço. Tenta preencher lat/lng via Nominatim automaticamente."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => { insomnia.expect(body.sucesso).to.equal(true); });",
+                          "    insomnia.test('dados.imovel_id deve corresponder ao imovel_id do environment', () => {",
+                          "        insomnia.expect(body.dados.imovel_id).to.equal(insomnia.environment.get('imovel_id'));",
+                          "    });",
+                          "    insomnia.test('dados.rua deve ser Avenida Paulista', () => { insomnia.expect(body.dados.rua).to.equal('Avenida Paulista'); });",
+                          "    insomnia.test('dados.estado deve ser SP', () => { insomnia.expect(body.dados.estado).to.equal('SP'); });",
+                          "    insomnia.test('dados.cep deve ser 01310-200', () => { insomnia.expect(body.dados.cep).to.equal('01310-200'); });",
+                          "    insomnia.test('dados.latitude pode ser string ou null (depende da rede)', () => {",
+                          "        const lat = body.dados.latitude;",
+                          "        insomnia.expect(lat === null || typeof lat === 'string').to.equal(true);",
+                          "    });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Segundo POST sobrescreve endereco anterior (upsert)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/endereco",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "endereco"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"rua\": \"Rua das Flores\",\n  \"numero\": \"200\",\n  \"cidade\": \"Campinas\",\n  \"estado\": \"SP\",\n  \"cep\": \"13010-050\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Segunda chamada atualiza o endereço em vez de duplicar."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('dados.rua deve ser o novo valor', () => { insomnia.expect(body.dados.rua).to.equal('Rua das Flores'); });",
+                          "insomnia.test('dados.cidade deve ser Campinas', () => { insomnia.expect(body.dados.cidade).to.equal('Campinas'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin busca endereco do imovel (GET)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/endereco",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "endereco"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Retorna o endereço atual do imóvel incluindo lat/lng."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('dados.imovel_id deve bater com o environment', () => {",
+                          "        insomnia.expect(body.dados.imovel_id).to.equal(insomnia.environment.get('imovel_id'));",
+                          "    });",
+                          "    insomnia.test('dados deve conter rua, cidade, estado e cep', () => {",
+                          "        insomnia.expect(body.dados.rua).to.be.a('string');",
+                          "        insomnia.expect(body.dados.cidade).to.be.a('string');",
+                          "        insomnia.expect(body.dados.estado).to.be.a('string');",
+                          "        insomnia.expect(body.dados.cep).to.be.a('string');",
+                          "    });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "CEP no formato errado retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/endereco",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "endereco"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"rua\": \"Rua Teste\",\n  \"numero\": \"1\",\n  \"cidade\": \"SP\",\n  \"estado\": \"SP\",\n  \"cep\": \"00000000\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "CEP deve estar no formato 00000-000."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('Erro deve estar no campo cep', () => { insomnia.expect(body.erros.cep).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Body vazio retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/endereco",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "endereco"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Campos rua, numero, cidade, estado e cep são obrigatórios."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('Campo erros deve ter multiplos campos', () => { insomnia.expect(Object.keys(body.erros).length).to.be.greaterThan(1); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Imovel inexistente retorna 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/00000000-0000-4000-a000-000000000000/endereco",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "00000000-0000-4000-a000-000000000000",
+                        "endereco"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Imóvel não existe."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🛋️ Criar Comodo (POST /api/v1/imoveis/{id}/comodos)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cria comodo no imovel retorna 201",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"Sala de Estar\",\n  \"descricao\": \"Sala ampla com varanda\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Cria um cômodo. Salva o ID em {{comodo_id}}."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 201', () => { insomnia.expect(insomnia.response.status).to.equal(201); });",
+                          "    insomnia.test('dados.id deve ser um UUID v4', () => {",
+                          "        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+                          "        insomnia.expect(body.dados.id).to.match(uuidRegex);",
+                          "    });",
+                          "    insomnia.test('dados.tipo deve ser Sala de Estar', () => { insomnia.expect(body.dados.tipo).to.equal('Sala de Estar'); });",
+                          "    insomnia.test('dados.imovel_id deve corresponder ao imovel_id', () => {",
+                          "        insomnia.expect(body.dados.imovel_id).to.equal(insomnia.environment.get('imovel_id'));",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('comodo_id', body.dados.id);",
+                          "",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem campo tipo retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Campo tipo é obrigatório."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('Erro deve estar no campo tipo', () => { insomnia.expect(body.erros.tipo).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Imovel inexistente retorna 404",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/00000000-0000-4000-a000-000000000000/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "00000000-0000-4000-a000-000000000000",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"Quarto\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Imóvel pai não existe."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode criar comodo retorna 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{locatario_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"Quarto\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Requer {{locatario_token}}."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📋 Listar Comodos (GET /api/v1/imoveis/{id}/comodos)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin lista comodos do imovel",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Lista todos os cômodos do imóvel."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('dados deve ser um array', () => { insomnia.expect(body.dados).to.be.an('array'); });",
+                          "    insomnia.test('Pelo menos um comodo deve existir', () => { insomnia.expect(body.dados.length).to.be.greaterThan(0); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Vistoriador pode listar comodos",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{vistoriador_token}}"
+                      }
+                    ],
+                    "description": "Requer {{vistoriador_token}}. Vistoriador tem acesso de leitura."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Locatario nao pode listar comodos retorna 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{locatario_token}}"
+                      }
+                    ],
+                    "description": "Locatário não tem acesso à listagem de cômodos."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "✏️ Atualizar Comodo (PUT /api/v1/imoveis/{id}/comodos/{comodo_id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin atualiza tipo e descricao do comodo",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos/{{comodo_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos",
+                        "{{comodo_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"Sala de Jantar\",\n  \"descricao\": \"Ambiente integrado\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Requer {{comodo_id}} salvo pelo request de criação."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "    insomnia.test('dados.tipo deve ser Sala de Jantar', () => { insomnia.expect(body.dados.tipo).to.equal('Sala de Jantar'); });",
+                          "    insomnia.test('dados.descricao deve ser o novo valor', () => { insomnia.expect(body.dados.descricao).to.equal('Ambiente integrado'); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Comodo inexistente retorna 404",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"Quarto\"}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "UUID do cômodo não existe."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🗑️ Deletar Comodo e Imovel",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin deleta comodo retorna 204",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}/comodos/{{comodo_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "comodos",
+                        "{{comodo_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Exclui permanentemente o cômodo."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 204', () => { insomnia.expect(insomnia.response.status).to.equal(204); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin deleta imovel disponivel retorna 204",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Soft delete — marca o imóvel como inativo. Rodar por último nesta fase."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 204', () => { insomnia.expect(insomnia.response.status).to.equal(204); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Nao pode deletar imovel com status locado → 422",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/{{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "{{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Primeiro atualize o imóvel para status=locado via PUT, depois execute este request."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('Campo \"sucesso\" deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Imovel inexistente retorna 404",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/imoveis/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "imoveis",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "UUID válido mas não existente."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

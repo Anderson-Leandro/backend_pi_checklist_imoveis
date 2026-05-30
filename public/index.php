@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\ImovelController;
 use App\Controllers\UsuarioController;
 use App\Database\Conexao;
 use App\Exceptions\AcessoNegadoException;
@@ -13,10 +14,15 @@ use App\Exceptions\ValidacaoException;
 use App\Helpers\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Models\ComodoModel;
+use App\Models\EnderecoModel;
+use App\Models\ImovelModel;
 use App\Models\RefreshTokenModel;
 use App\Models\UsuarioModel;
 use App\Router;
 use App\Services\AuthService;
+use App\Services\GeocodingService;
+use App\Services\ImovelService;
 use App\Services\LogService;
 use App\Services\MfaService;
 use App\Services\UsuarioService;
@@ -43,6 +49,12 @@ $authService       = new AuthService($usuarioModel, $refreshTokenModel, $logServ
 $authController    = new AuthController($authService, $mfaService);
 $usuarioService    = new UsuarioService($usuarioModel, $logService);
 $usuarioController = new UsuarioController($usuarioService);
+$imovelModel       = new ImovelModel($conexao);
+$enderecoModel     = new EnderecoModel($conexao);
+$comodoModel       = new ComodoModel($conexao);
+$geocodingService  = new GeocodingService();
+$imovelService     = new ImovelService($imovelModel, $enderecoModel, $comodoModel, $geocodingService, $logService);
+$imovelController  = new ImovelController($imovelService);
 $authMiddleware    = new AuthMiddleware();
 $roleMiddleware    = new RoleMiddleware();
 
@@ -97,6 +109,57 @@ $roteador->put('/api/v1/usuarios/{id}', [$usuarioController, 'atualizar'], [
     $roleMiddleware->verificar('admin'),
 ]);
 $roteador->delete('/api/v1/usuarios/{id}', [$usuarioController, 'excluir'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// ── Fase 4: imóveis, endereços e cômodos ──────────────────────────────────────
+$roteador->post('/api/v1/imoveis', [$imovelController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/imoveis', [$imovelController, 'listar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+// GET por ID: admin e locatário — a autorização por contrato é feita no Service
+$roteador->get('/api/v1/imoveis/{id}', [$imovelController, 'buscarPorId'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->put('/api/v1/imoveis/{id}', [$imovelController, 'atualizar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->delete('/api/v1/imoveis/{id}', [$imovelController, 'excluir'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// Endereço — admin gerencia, locatário visualiza (via Service)
+$roteador->post('/api/v1/imoveis/{id}/endereco', [$imovelController, 'salvarEndereco'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/imoveis/{id}/endereco', [$imovelController, 'buscarEndereco'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+
+// Cômodos — admin gerencia, vistoriador e admin visualizam
+$roteador->post('/api/v1/imoveis/{id}/comodos', [$imovelController, 'criarComodo'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/imoveis/{id}/comodos', [$imovelController, 'listarComodos'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+$roteador->put('/api/v1/imoveis/{id}/comodos/{comodo_id}', [$imovelController, 'atualizarComodo'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->delete('/api/v1/imoveis/{id}/comodos/{comodo_id}', [$imovelController, 'excluirComodo'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('admin'),
 ]);
