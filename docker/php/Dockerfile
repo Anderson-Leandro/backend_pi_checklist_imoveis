@@ -11,3 +11,9 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 COPY . .
+
+COPY docker/php/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["php-fpm"]
