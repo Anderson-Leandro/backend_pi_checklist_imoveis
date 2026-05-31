@@ -142,4 +142,19 @@ class ContratoModel
         $stmt->execute([':imovel_id' => $imovelId]);
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    /**
+     * Busca o contrato ativo de um imóvel (para API pública).
+     *
+     * @return array{id: string, imovel_id: string, locatario_id: string, data_inicio: string, data_fim: string, status: string, created_at: string}|null
+     */
+    public function buscarAtivoPorImovel(string $imovelId): array|null
+    {
+        $stmt = $this->conexao->prepare(
+            "SELECT id, imovel_id, locatario_id, data_inicio, data_fim, status, created_at
+             FROM contrato WHERE imovel_id = :imovel_id AND status = 'ativo' LIMIT 1"
+        );
+        $stmt->execute([':imovel_id' => $imovelId]);
+        return $stmt->fetch() ?: null;
+    }
 }

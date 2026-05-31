@@ -25,6 +25,16 @@
       "key": "temp_token",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "api_key_chave",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "api_key_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -11213,6 +11223,863 @@
                       "raw": "{\n  \"descricao\": \"Problema que nao existe\"\n}"
                     },
                     "description": "Problema com UUID inexistente. Deve retornar 404."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📁 Fase 10 — Dashboard + API Pública",
+      "item": [
+        {
+          "name": "📂 Dashboard (GET /dashboard)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin obtém estatísticas do dashboard (GET /dashboard)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "dashboard"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin. Retorna contagens agregadas: imóveis locados, checklists pendentes, problemas abertos e vistorias agendadas."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.imoveis_locados deve ser inteiro', () => {",
+                          "        insomnia.expect(body.dados.imoveis_locados).to.be.a('number');",
+                          "    });",
+                          "    insomnia.test('dados.checklists_pendentes deve ser inteiro', () => {",
+                          "        insomnia.expect(body.dados.checklists_pendentes).to.be.a('number');",
+                          "    });",
+                          "    insomnia.test('dados.problemas_abertos deve ser inteiro', () => {",
+                          "        insomnia.expect(body.dados.problemas_abertos).to.be.a('number');",
+                          "    });",
+                          "    insomnia.test('dados.vistorias_agendadas deve ser inteiro', () => {",
+                          "        insomnia.expect(body.dados.vistorias_agendadas).to.be.a('number');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Locatário não pode acessar dashboard → 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "dashboard"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário. Apenas admin pode visualizar o dashboard."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 403', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(403);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token → 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/dashboard",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "dashboard"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📂 API Keys (POST, GET /api-keys | DELETE /api-keys/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cria API key (POST /api-keys)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/api-keys",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "api-keys"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin. Gera uma nova API key. A chave em texto simples (campo 'chave') é retornada UMA ÚNICA VEZ e não pode ser recuperada depois. Salve-a imediatamente.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Integração Sistema Externo\"\n}"
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "    insomnia.test('dados.chave deve ter 64 chars', () => {",
+                          "        insomnia.expect(body.dados.chave).to.have.lengthOf(64);",
+                          "    });",
+                          "    insomnia.test('key_hash nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.dados.key_hash).to.be.undefined;",
+                          "    });",
+                          "    if (body.dados && body.dados.id) {",
+                          "        pm.environment.set('api_key_id', body.dados.id);",
+                          "        pm.environment.set('api_key_chave', body.dados.chave);",
+                          "    }",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin lista API keys (GET /api-keys)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/api-keys",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "api-keys"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin. Lista todas as API keys sem expor key_hash ou a chave em texto."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados deve ser array', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('array');",
+                          "    });",
+                          "    if (body.dados.length > 0) {",
+                          "        insomnia.test('key_hash nao deve aparecer na listagem', () => {",
+                          "            insomnia.expect(body.dados[0].key_hash).to.be.undefined;",
+                          "        });",
+                          "    }",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin revoga API key (DELETE /api-keys/{id})",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/api-keys/{{api_key_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "api-keys",
+                        "{{api_key_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin. Desativa a API key. Requests com ela passarão a receber 401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 204', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(204);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Criar API key — nome ausente → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/api-keys",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "api-keys"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Body sem o campo nome.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}"
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('erros.nome deve existir', () => {",
+                          "        insomnia.expect(body.erros.nome).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Criar API key sem token → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/api-keys",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "api-keys"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Sem Authorization header.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"nome\":\"Sem token\"}"
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Revogar API key inexistente → 404",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/api-keys/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "api-keys",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "API key com UUID inexistente."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📂 API Pública (GET /public/imoveis | GET /public/imoveis/{id}/checklist-status)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Listar imóveis públicos (GET /public/imoveis)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/public/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "public",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-API-Key",
+                        "value": "{{api_key_chave}}"
+                      }
+                    ],
+                    "description": "Autenticado via X-API-Key. Retorna todos os imóveis ativos com status e endereço."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados deve ser array', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('array');",
+                          "    });",
+                          "    if (body.dados.length > 0) {",
+                          "        insomnia.test('campo endereco deve existir', () => {",
+                          "            insomnia.expect(body.dados[0]).to.have.property('endereco');",
+                          "        });",
+                          "    }",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Status do checklist de imóvel (GET /public/imoveis/{id}/checklist-status)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/public/imoveis/{{imovel_id}}/checklist-status",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "public",
+                        "imoveis",
+                        "{{imovel_id}}",
+                        "checklist-status"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-API-Key",
+                        "value": "{{api_key_chave}}"
+                      }
+                    ],
+                    "description": "Autenticado via X-API-Key. Retorna o status do checklist mais recente do contrato ativo do imóvel. checklist_status pode ser null se não houver checklist."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.imovel_id deve ser string', () => {",
+                          "        insomnia.expect(body.dados.imovel_id).to.be.a('string');",
+                          "    });",
+                          "    insomnia.test('campo checklist_status deve existir', () => {",
+                          "        insomnia.expect(body.dados).to.have.property('checklist_status');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem API key → 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/public/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "public",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Requisição sem o header X-API-Key. Deve retornar 401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "API key inválida → 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/public/imoveis",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "public",
+                        "imoveis"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-API-Key",
+                        "value": "chave-invalida-nao-existe"
+                      }
+                    ],
+                    "description": "Header X-API-Key com valor inválido (não cadastrado no banco)."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Imóvel inexistente no checklist-status → 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/public/imoveis/00000000-0000-4000-a000-000000000000/checklist-status",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "public",
+                        "imoveis",
+                        "00000000-0000-4000-a000-000000000000",
+                        "checklist-status"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-API-Key",
+                        "value": "{{api_key_chave}}"
+                      }
+                    ],
+                    "description": "UUID de imóvel que não existe."
                   },
                   "event": [
                     {

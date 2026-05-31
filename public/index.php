@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 use App\Controllers\AgendamentoController;
+use App\Controllers\ApiKeyController;
 use App\Controllers\AuthController;
 use App\Controllers\ChecklistController;
 use App\Controllers\ContratoController;
+use App\Controllers\DashboardController;
 use App\Controllers\ImovelController;
 use App\Controllers\ItemVistoriaController;
 use App\Controllers\ProblemaController;
+use App\Controllers\PublicController;
 use App\Controllers\UsuarioController;
 use App\Database\Conexao;
 use App\Exceptions\AcessoNegadoException;
@@ -17,10 +20,12 @@ use App\Exceptions\NaoEncontradoException;
 use App\Exceptions\RegraDeNegocioException;
 use App\Exceptions\ValidacaoException;
 use App\Helpers\Response;
+use App\Middleware\ApiKeyMiddleware;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 use App\Models\AceiteChecklistModel;
 use App\Models\AgendamentoModel;
+use App\Models\ApiKeyModel;
 use App\Models\AtualizacaoProblemaModel;
 use App\Models\ChecklistItemModel;
 use App\Models\ChecklistModel;
@@ -35,9 +40,11 @@ use App\Models\RegistroProblemaModel;
 use App\Models\UsuarioModel;
 use App\Router;
 use App\Services\AgendamentoService;
+use App\Services\ApiKeyService;
 use App\Services\AuthService;
 use App\Services\ChecklistService;
 use App\Services\ContratoService;
+use App\Services\DashboardService;
 use App\Services\GeocodingService;
 use App\Services\ImovelService;
 use App\Services\ItemVistoriaService;
@@ -46,6 +53,7 @@ use App\Services\MfaService;
 use App\Services\NotificationService;
 use App\Services\PdfService;
 use App\Services\ProblemaService;
+use App\Services\PublicService;
 use App\Services\Storage\LocalStorageService;
 use App\Services\UsuarioService;
 use Dotenv\Dotenv;
@@ -121,6 +129,24 @@ $problemaService        = new ProblemaService(
     $notificationService
 );
 $problemaController     = new ProblemaController($problemaService);
+$dashboardService       = new DashboardService(
+    $imovelModel,
+    $checklistModel,
+    $registroProblemaModel,
+    $agendamentoModel
+);
+$dashboardController    = new DashboardController($dashboardService);
+$apiKeyModel            = new ApiKeyModel($conexao);
+$apiKeyService          = new ApiKeyService($apiKeyModel, $logService);
+$apiKeyController       = new ApiKeyController($apiKeyService);
+$apiKeyMiddleware       = new ApiKeyMiddleware($apiKeyModel, $logService);
+$publicService          = new PublicService(
+    $imovelModel,
+    $enderecoModel,
+    $contratoModel,
+    $checklistModel
+);
+$publicController       = new PublicController($publicService);
 $authMiddleware        = new AuthMiddleware();
 $roleMiddleware        = new RoleMiddleware();
 
@@ -366,6 +392,34 @@ $roteador->post('/api/v1/checklists/{id}/rejeitar', [$checklistController, 'reje
 $roteador->get('/api/v1/checklists/{id}/download', [$checklistController, 'downloadPdf'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('locatario'),
+]);
+
+// ── Fase 10: dashboard, API keys e API pública ───────────────────────────────
+$roteador->get('/api/v1/dashboard', [$dashboardController, 'obter'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// Gerenciamento de API keys (admin)
+$roteador->post('/api/v1/api-keys', [$apiKeyController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/api-keys', [$apiKeyController, 'listar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->delete('/api/v1/api-keys/{id}', [$apiKeyController, 'revogar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// API pública autenticada via X-API-Key
+$roteador->get('/api/v1/public/imoveis', [$publicController, 'listarImoveis'], [
+    [$apiKeyMiddleware, 'verificar'],
+]);
+$roteador->get('/api/v1/public/imoveis/{id}/checklist-status', [$publicController, 'obterStatusChecklist'], [
+    [$apiKeyMiddleware, 'verificar'],
 ]);
 
 // ── Captura central de erros ──────────────────────────────────────────────────

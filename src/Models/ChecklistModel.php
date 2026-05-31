@@ -83,4 +83,33 @@ class ChecklistModel
         );
         $stmt->execute([':data_vistoria' => $dataVistoria, ':id' => $id]);
     }
+
+    /**
+     * Conta checklists pendentes (em preenchimento, aguardando aceite ou em revisão).
+     * Usado pelo dashboard.
+     */
+    public function contarPendentes(): int
+    {
+        $stmt = $this->conexao->prepare(
+            "SELECT COUNT(*) FROM checklist
+             WHERE status IN ('em_preenchimento', 'pendente_aceite', 'pendente_revisao')"
+        );
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Busca o checklist mais recente de um contrato.
+     *
+     * @return array{id: string, contrato_id: string, vistoriador_id: string, tipo: string, status: string, data_vistoria: string|null, created_at: string}|null
+     */
+    public function buscarUltimoPorContrato(string $contratoId): array|null
+    {
+        $stmt = $this->conexao->prepare(
+            'SELECT id, contrato_id, vistoriador_id, tipo, status, data_vistoria, created_at
+             FROM checklist WHERE contrato_id = :contrato_id ORDER BY created_at DESC LIMIT 1'
+        );
+        $stmt->execute([':contrato_id' => $contratoId]);
+        return $stmt->fetch() ?: null;
+    }
 }

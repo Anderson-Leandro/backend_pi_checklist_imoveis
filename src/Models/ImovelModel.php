@@ -144,4 +144,19 @@ class ImovelModel
         $stmt->execute([':imovel_id' => $imovelId, ':locatario_id' => $locatarioId]);
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    /**
+     * Lista todos os imóveis ativos sem paginação (para API pública).
+     *
+     * @return list<array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string}>
+     */
+    public function listarTodos(): array
+    {
+        $stmt = $this->conexao->prepare(
+            'SELECT id, tipo, tamanho, garagem, garagem_vagas, status, created_at
+             FROM imovel WHERE ativo = 1 ORDER BY created_at DESC'
+        );
+        $stmt->execute();
+        return $stmt->fetchAll() ?: [];
+    }
 }

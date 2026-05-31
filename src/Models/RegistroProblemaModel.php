@@ -76,4 +76,18 @@ class RegistroProblemaModel
         );
         $stmt->execute([':status' => $status, ':id' => $id]);
     }
+
+    /**
+     * Conta problemas não resolvidos (abertos ou em andamento).
+     * Usado pelo dashboard.
+     */
+    public function contarAbertos(): int
+    {
+        $stmt = $this->conexao->prepare(
+            "SELECT COUNT(*) FROM registro_problema
+             WHERE status IN ('aberto', 'em_andamento')"
+        );
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
 }

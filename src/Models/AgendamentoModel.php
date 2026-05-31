@@ -97,4 +97,17 @@ class AgendamentoModel
         );
         $stmt->execute([':id' => $id]);
     }
+
+    /**
+     * Conta agendamentos com data futura (a partir de agora).
+     * Usado pelo dashboard.
+     */
+    public function contarFuturos(): int
+    {
+        $stmt = $this->conexao->prepare(
+            'SELECT COUNT(*) FROM agendamento_vistoria WHERE data_agendada >= NOW()'
+        );
+        $stmt->execute();
+        return (int) $stmt->fetchColumn();
+    }
 }

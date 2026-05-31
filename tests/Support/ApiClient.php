@@ -8,6 +8,8 @@ class ApiClient
 {
     private static string $baseUrl = TEST_BASE_URL;
     private string|null $token = null;
+    /** @var array<string, string> */
+    private array $cabecalhosExtras = [];
 
     public static function criar(): self
     {
@@ -18,6 +20,16 @@ class ApiClient
     {
         $clone        = clone $this;
         $clone->token = $token;
+        return $clone;
+    }
+
+    /**
+     * Adiciona um cabeçalho HTTP extra à requisição.
+     */
+    public function comCabecalho(string $nome, string $valor): self
+    {
+        $clone = clone $this;
+        $clone->cabecalhosExtras[$nome] = $valor;
         return $clone;
     }
 
@@ -130,6 +142,10 @@ class ApiClient
 
         if ($this->token !== null) {
             $cabecalhos[] = "Authorization: Bearer {$this->token}";
+        }
+
+        foreach ($this->cabecalhosExtras as $nome => $valor) {
+            $cabecalhos[] = "{$nome}: {$valor}";
         }
 
         $ch = curl_init($url);
