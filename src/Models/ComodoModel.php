@@ -28,6 +28,20 @@ class ComodoModel
     }
 
     /**
+     * Busca um cômodo apenas pelo ID, sem validar o imóvel.
+     *
+     * @return array{id: string, imovel_id: string, tipo: string, descricao: string|null}|null
+     */
+    public function buscarPorIdSimples(string $id): array|null
+    {
+        $stmt = $this->conexao->prepare(
+            'SELECT id, imovel_id, tipo, descricao FROM comodo WHERE id = :id LIMIT 1'
+        );
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch() ?: null;
+    }
+
+    /**
      * Busca um cômodo pelo ID verificando se pertence ao imóvel informado.
      *
      * @return array{id: string, imovel_id: string, tipo: string, descricao: string|null}|null

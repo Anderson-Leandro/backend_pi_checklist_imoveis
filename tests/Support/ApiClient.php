@@ -50,6 +50,46 @@ class ApiClient
         return $this->requisicao('DELETE', self::$baseUrl . $caminho, $corpo);
     }
 
+    /**
+     * Envia uma requisição POST com multipart/form-data (para upload de arquivo).
+     *
+     * @param string $caminho Caminho da rota
+     * @param array<string, string> $campos   Campos de texto (name => value)
+     * @param array<string, string> $arquivos Arquivos (field_name => caminho_absoluto)
+     */
+    public function postArquivo(string $caminho, array $campos = [], array $arquivos = []): ApiResponse
+    {
+        $cabecalhos = ['Accept: application/json'];
+
+        if ($this->token !== null) {
+            $cabecalhos[] = "Authorization: Bearer {$this->token}";
+        }
+
+        $postData = $campos;
+        foreach ($arquivos as $campo => $caminhoDisco) {
+            $postData[$campo] = new \CURLFile($caminhoDisco);
+        }
+
+        $ch = curl_init(self::$baseUrl . $caminho);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => $cabecalhos,
+            CURLOPT_HEADER         => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_POSTFIELDS     => $postData,
+        ]);
+
+        $resposta   = curl_exec($ch);
+        $status     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        curl_close($ch);
+
+        $json = json_decode(substr($resposta, $headerSize), true) ?? [];
+
+        return new ApiResponse($status, $json);
+    }
+
     private function requisicao(string $metodo, string $url, array $corpo): ApiResponse
     {
         $cabecalhos = ['Content-Type: application/json', 'Accept: application/json'];

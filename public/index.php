@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\ChecklistController;
 use App\Controllers\ContratoController;
 use App\Controllers\ImovelController;
+use App\Controllers\ItemVistoriaController;
 use App\Controllers\UsuarioController;
 use App\Database\Conexao;
 use App\Exceptions\AcessoNegadoException;
@@ -15,19 +17,26 @@ use App\Exceptions\ValidacaoException;
 use App\Helpers\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Models\ChecklistItemModel;
+use App\Models\ChecklistModel;
 use App\Models\ComodoModel;
 use App\Models\ContratoModel;
 use App\Models\EnderecoModel;
+use App\Models\FotoChecklistModel;
 use App\Models\ImovelModel;
+use App\Models\ItemVistoriaModel;
 use App\Models\RefreshTokenModel;
 use App\Models\UsuarioModel;
 use App\Router;
 use App\Services\AuthService;
+use App\Services\ChecklistService;
 use App\Services\ContratoService;
 use App\Services\GeocodingService;
 use App\Services\ImovelService;
+use App\Services\ItemVistoriaService;
 use App\Services\LogService;
 use App\Services\MfaService;
+use App\Services\Storage\LocalStorageService;
 use App\Services\UsuarioService;
 use Dotenv\Dotenv;
 
@@ -58,10 +67,28 @@ $comodoModel       = new ComodoModel($conexao);
 $geocodingService  = new GeocodingService();
 $imovelService     = new ImovelService($imovelModel, $enderecoModel, $comodoModel, $geocodingService, $logService);
 $imovelController  = new ImovelController($imovelService);
-$contratoModel     = new ContratoModel($conexao);
-$contratoService   = new ContratoService($contratoModel, $imovelModel, $usuarioModel, $logService);
-$contratoController = new ContratoController($contratoService);
-$authMiddleware    = new AuthMiddleware();
+$contratoModel          = new ContratoModel($conexao);
+$contratoService        = new ContratoService($contratoModel, $imovelModel, $usuarioModel, $logService);
+$contratoController     = new ContratoController($contratoService);
+$itemVistoriaModel      = new ItemVistoriaModel($conexao);
+$itemVistoriaService    = new ItemVistoriaService($itemVistoriaModel);
+$itemVistoriaController = new ItemVistoriaController($itemVistoriaService);
+$checklistModel         = new ChecklistModel($conexao);
+$checklistItemModel     = new ChecklistItemModel($conexao);
+$fotoChecklistModel     = new FotoChecklistModel($conexao);
+$localStorageService    = new LocalStorageService();
+$checklistService       = new ChecklistService(
+    $checklistModel,
+    $checklistItemModel,
+    $fotoChecklistModel,
+    $contratoModel,
+    $comodoModel,
+    $itemVistoriaModel,
+    $localStorageService,
+    $logService
+);
+$checklistController    = new ChecklistController($checklistService);
+$authMiddleware         = new AuthMiddleware();
 $roleMiddleware    = new RoleMiddleware();
 
 $roteador = new Router();
@@ -192,6 +219,56 @@ $roteador->patch('/api/v1/contratos/{id}/encerrar', [$contratoController, 'encer
 $roteador->patch('/api/v1/contratos/{id}/cancelar', [$contratoController, 'cancelar'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('admin'),
+]);
+
+// ── Fase 6: checklists, itens e fotos ────────────────────────────────────────
+$roteador->get('/api/v1/itens-vistoria', [$itemVistoriaController, 'listar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+
+// Checklists por contrato
+$roteador->post('/api/v1/contratos/{id}/checklists', [$checklistController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/contratos/{id}/checklists', [$checklistController, 'listarPorContrato'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+
+// Checklist individual
+$roteador->get('/api/v1/checklists/{id}', [$checklistController, 'buscarPorId'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->patch('/api/v1/checklists/{id}/enviar-para-aceite', [$checklistController, 'enviarParaAceite'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->patch('/api/v1/checklists/{id}/submeter', [$checklistController, 'submeter'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+
+// Itens de checklist
+$roteador->post('/api/v1/checklists/{id}/itens', [$checklistController, 'adicionarItem'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+$roteador->put('/api/v1/checklists/{id}/itens/{item_id}', [$checklistController, 'atualizarItem'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+
+// Fotos de item
+$roteador->post('/api/v1/checklists/{id}/itens/{item_id}/fotos', [$checklistController, 'uploadFoto'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+$roteador->delete('/api/v1/checklists/{id}/itens/{item_id}/fotos/{foto_id}', [$checklistController, 'excluirFoto'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
 ]);
 
 // ── Captura central de erros ──────────────────────────────────────────────────
