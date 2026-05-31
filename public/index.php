@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AgendamentoController;
 use App\Controllers\AuthController;
 use App\Controllers\ChecklistController;
 use App\Controllers\ContratoController;
@@ -18,6 +19,7 @@ use App\Helpers\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 use App\Models\AceiteChecklistModel;
+use App\Models\AgendamentoModel;
 use App\Models\ChecklistItemModel;
 use App\Models\ChecklistModel;
 use App\Models\ComodoModel;
@@ -29,6 +31,7 @@ use App\Models\ItemVistoriaModel;
 use App\Models\RefreshTokenModel;
 use App\Models\UsuarioModel;
 use App\Router;
+use App\Services\AgendamentoService;
 use App\Services\AuthService;
 use App\Services\ChecklistService;
 use App\Services\ContratoService;
@@ -97,8 +100,11 @@ $checklistService       = new ChecklistService(
     $pdfService
 );
 $checklistController    = new ChecklistController($checklistService);
-$authMiddleware         = new AuthMiddleware();
-$roleMiddleware    = new RoleMiddleware();
+$agendamentoModel      = new AgendamentoModel($conexao);
+$agendamentoService    = new AgendamentoService($agendamentoModel, $contratoModel, $logService);
+$agendamentoController = new AgendamentoController($agendamentoService);
+$authMiddleware        = new AuthMiddleware();
+$roleMiddleware        = new RoleMiddleware();
 
 $roteador = new Router();
 
@@ -278,6 +284,25 @@ $roteador->post('/api/v1/checklists/{id}/itens/{item_id}/fotos', [$checklistCont
 $roteador->delete('/api/v1/checklists/{id}/itens/{item_id}/fotos/{foto_id}', [$checklistController, 'excluirFoto'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('vistoriador'),
+]);
+
+// ── Fase 8: agendamentos de vistoria ─────────────────────────────────────────
+$roteador->post('/api/v1/contratos/{id}/agendamentos', [$agendamentoController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+// GET: admin e vistoriador visualizam
+$roteador->get('/api/v1/contratos/{id}/agendamentos', [$agendamentoController, 'listarPorContrato'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('vistoriador'),
+]);
+$roteador->put('/api/v1/agendamentos/{id}', [$agendamentoController, 'atualizar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->delete('/api/v1/agendamentos/{id}', [$agendamentoController, 'excluir'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
 ]);
 
 // ── Fase 7: aceite do checklist e download PDF ────────────────────────────────

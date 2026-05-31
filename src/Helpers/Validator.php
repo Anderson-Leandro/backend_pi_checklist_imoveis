@@ -58,6 +58,7 @@ class Validator
             'enum'        => self::validarEnum($campo, $valor, $parametro ?? ''),
             'uuid'        => self::validarUuid($campo, $valor),
             'data'        => self::validarData($campo, $valor),
+            'datetime'    => self::validarDatetime($campo, $valor),
             'inteiro'     => self::validarInteiro($campo, $valor),
             'booleano'    => self::validarBooleano($campo, $valor),
             'url'         => self::validarUrl($campo, $valor),
@@ -167,6 +168,22 @@ class Validator
 
         if (!$data || $data->format('Y-m-d') !== $valorString) {
             return "O campo {$campo} deve ser uma data válida no formato YYYY-MM-DD.";
+        }
+
+        return null;
+    }
+
+    private static function validarDatetime(string $campo, mixed $valor): string|null
+    {
+        if ($valor === null || $valor === '') {
+            return null;
+        }
+
+        $valorString = (string) $valor;
+        $data        = DateTime::createFromFormat('Y-m-d H:i:s', $valorString);
+
+        if (!$data || $data->format('Y-m-d H:i:s') !== $valorString) {
+            return "O campo {$campo} deve ser uma data/hora válida no formato YYYY-MM-DD HH:MM:SS.";
         }
 
         return null;

@@ -9662,6 +9662,367 @@
           ]
         }
       ]
+    },
+    {
+      "name": "📁 Fase 8 — Agendamentos de Vistoria",
+      "item": [
+        {
+          "name": "📅 Agendamentos (POST e GET /contratos/{id}/agendamentos | PUT e DELETE /agendamentos/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cria agendamento (POST /contratos/{id}/agendamentos)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"inicial\",\n  \"data_agendada\": \"2026-12-01 09:00:00\",\n  \"observacao\": \"Primeira vistoria do imóvel\"\n}"
+                    },
+                    "description": "Token de admin. Cria um agendamento de vistoria vinculado ao contrato. data_agendada deve ser futura no formato YYYY-MM-DD HH:MM:SS."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "    insomnia.test('dados.tipo deve ser inicial', () => {",
+                          "        insomnia.expect(body.dados.tipo).to.equal('inicial');",
+                          "    });",
+                          "    if (body.dados && body.dados.id) {",
+                          "        pm.environment.set('agendamento_id', body.dados.id);",
+                          "    }",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin e vistoriador listam agendamentos do contrato (GET)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de admin ou vistoriador. Retorna lista de agendamentos ordenada por data_agendada ASC."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados deve ser array', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('array');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin atualiza agendamento (PUT /agendamentos/{id})",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/agendamentos/{{agendamento_id}}",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "agendamentos", "{{agendamento_id}}"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"encerramento\",\n  \"data_agendada\": \"2027-01-15 14:00:00\",\n  \"observacao\": \"Reagendado para melhor conveniência\"\n}"
+                    },
+                    "description": "Token de admin. Atualiza um ou mais campos do agendamento. data_agendada deve ser futura."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.tipo deve ser encerramento', () => {",
+                          "        insomnia.expect(body.dados.tipo).to.equal('encerramento');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin exclui agendamento (DELETE /agendamentos/{id})",
+                  "request": {
+                    "method": "DELETE",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/agendamentos/{{agendamento_id}}",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "agendamentos", "{{agendamento_id}}"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de admin. Remove permanentemente o agendamento."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 204', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(204);",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Criar agendamento sem token retorna 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"}
+                    ],
+                    "body": {"mode": "raw", "raw": "{}"},
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });",
+                          "    insomnia.test('sucesso deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });",
+                          "    insomnia.test('trace nao deve ser exposto', () => { insomnia.expect(body.trace).to.be.undefined; });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Vistoriador nao pode criar agendamento retorna 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"inicial\",\n  \"data_agendada\": \"2026-12-01 09:00:00\"\n}"
+                    },
+                    "description": "Token de vistoriador. Apenas admin pode criar agendamentos."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
+                          "    insomnia.test('sucesso deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Data no passado ao criar agendamento retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tipo\": \"inicial\",\n  \"data_agendada\": \"2020-01-01 00:00:00\"\n}"
+                    },
+                    "description": "Token de admin. data_agendada no passado deve ser rejeitada."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "    insomnia.test('sucesso deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });",
+                          "    insomnia.test('erros.data_agendada deve existir', () => { insomnia.expect(body.erros).to.have.property('data_agendada'); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Agendamento inexistente ao atualizar retorna 404",
+                  "request": {
+                    "method": "PUT",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/agendamentos/00000000-0000-4000-a000-000000000000",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "agendamentos", "00000000-0000-4000-a000-000000000000"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {"mode": "raw", "raw": "{\"tipo\": \"inicial\"}"},
+                    "description": "Token de admin. UUID de agendamento inexistente."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });",
+                          "    insomnia.test('sucesso deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode listar agendamentos retorna 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de locatário. Locatário não pode visualizar agendamentos."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
+                          "    insomnia.test('sucesso deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });",
+                          "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
