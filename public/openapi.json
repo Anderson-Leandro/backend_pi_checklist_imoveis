@@ -1,0 +1,4318 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "One Check API",
+    "description": "API para gestão de vistorias imobiliárias. Autenticação via JWT Bearer Token.\n\n**Roles disponíveis:** `admin`, `vistoriador`, `locatario`\n\n**Fluxo de autenticação:**\n1. `POST /api/v1/auth/login` → obtenha `access_token` e `refresh_token`\n2. Envie `Authorization: Bearer {access_token}` em todas as rotas protegidas\n3. Quando o `access_token` expirar, use `POST /api/v1/auth/refresh`",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Desenvolvimento local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Fundação",
+      "description": "Health check e status da API"
+    },
+    {
+      "name": "Autenticação",
+      "description": "Login, logout e refresh de tokens"
+    },
+    {
+      "name": "MFA",
+      "description": "Configuração e verificação de autenticação multifator (TOTP)"
+    },
+    {
+      "name": "Usuários",
+      "description": "Gerenciamento de usuários"
+    },
+    {
+      "name": "Imóveis",
+      "description": "Cadastro e gestão de imóveis"
+    },
+    {
+      "name": "Endereços",
+      "description": "Endereços dos imóveis com geocodificação automática"
+    },
+    {
+      "name": "Cômodos",
+      "description": "Cômodos vinculados aos imóveis"
+    },
+    {
+      "name": "Contratos",
+      "description": "Contratos de locação"
+    },
+    {
+      "name": "Itens de Vistoria",
+      "description": "Itens padrão utilizados nos checklists"
+    },
+    {
+      "name": "Checklists",
+      "description": "Checklists de vistoria"
+    },
+    {
+      "name": "Aceite",
+      "description": "Aceite e rejeição de checklists pelo locatário"
+    },
+    {
+      "name": "Agendamentos",
+      "description": "Agendamentos de vistorias"
+    },
+    {
+      "name": "Problemas",
+      "description": "Registro e acompanhamento de problemas"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Estatísticas gerais do sistema (admin)"
+    },
+    {
+      "name": "API Keys",
+      "description": "Gerenciamento de chaves de API pública"
+    },
+    {
+      "name": "API Pública",
+      "description": "Endpoints públicos autenticados via X-API-Key"
+    },
+    {
+      "name": "Logs",
+      "description": "Consulta de logs de operação (admin)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT obtido via POST /api/v1/auth/login"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Chave gerada via POST /api/v1/api-keys"
+      }
+    },
+    "schemas": {
+      "Erro": {
+        "type": "object",
+        "properties": {
+          "sucesso": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "string",
+            "example": "Recurso não encontrado"
+          }
+        }
+      },
+      "ErroValidacao": {
+        "type": "object",
+        "properties": {
+          "sucesso": {
+            "type": "boolean",
+            "example": false
+          },
+          "erros": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "email": "Campo obrigatório",
+              "senha": "Mínimo de 8 caracteres"
+            }
+          }
+        }
+      },
+      "Paginacao": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 42
+          },
+          "pagina": {
+            "type": "integer",
+            "example": 1
+          },
+          "itensPorPagina": {
+            "type": "integer",
+            "example": 20
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string",
+            "example": "João Silva"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "vistoriador",
+              "locatario"
+            ]
+          },
+          "mfa_ativo": {
+            "type": "boolean",
+            "example": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Imovel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "example": "Apartamento"
+          },
+          "tamanho": {
+            "type": "string",
+            "example": "80m²"
+          },
+          "garagem": {
+            "type": "boolean",
+            "example": false
+          },
+          "garagem_vagas": {
+            "type": "integer",
+            "example": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "disponivel",
+              "locado",
+              "em_vistoria"
+            ],
+            "example": "disponivel"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Endereco": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "imovel_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rua": {
+            "type": "string",
+            "example": "Rua das Flores"
+          },
+          "numero": {
+            "type": "string",
+            "example": "123"
+          },
+          "complemento": {
+            "type": "string",
+            "example": "Apto 42",
+            "nullable": true
+          },
+          "bloco": {
+            "type": "string",
+            "nullable": true
+          },
+          "andar": {
+            "type": "string",
+            "nullable": true
+          },
+          "cidade": {
+            "type": "string",
+            "example": "São Paulo"
+          },
+          "estado": {
+            "type": "string",
+            "example": "SP"
+          },
+          "cep": {
+            "type": "string",
+            "example": "01310-100"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "longitude": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          }
+        }
+      },
+      "Comodo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "imovel_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "example": "Sala"
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Contrato": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "imovel_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locatario_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "data_inicio": {
+            "type": "string",
+            "format": "date"
+          },
+          "data_fim": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ativo",
+              "encerrado",
+              "cancelado"
+            ],
+            "example": "ativo"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ItemVistoria": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string",
+            "example": "Pintura"
+          },
+          "categoria": {
+            "type": "string",
+            "example": "Acabamento"
+          }
+        }
+      },
+      "Checklist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contrato_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vistoriador_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "inicial",
+              "encerramento"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "em_preenchimento",
+              "pendente_aceite",
+              "aceito",
+              "rejeitado",
+              "pendente_revisao"
+            ],
+            "example": "em_preenchimento"
+          },
+          "data_vistoria": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChecklistItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checklist_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comodo_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item_vistoria_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "otimo",
+              "bom",
+              "regular",
+              "ruim"
+            ]
+          },
+          "observacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "fotos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FotoChecklist"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FotoChecklist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checklist_item_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string",
+            "example": "/storage/uploads/foto.jpg"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Agendamento": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contrato_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "inicial",
+              "encerramento"
+            ]
+          },
+          "data_agendada": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "observacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Problema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "contrato_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comodo_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "titulo": {
+            "type": "string",
+            "example": "Vazamento na torneira"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "foto_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "aberto",
+              "em_andamento",
+              "resolvido"
+            ],
+            "example": "aberto"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AtualizacaoProblema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "problema_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "autor_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "foto_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Dashboard": {
+        "type": "object",
+        "properties": {
+          "imoveis_locados": {
+            "type": "integer"
+          },
+          "checklists_pendentes": {
+            "type": "integer"
+          },
+          "problemas_abertos": {
+            "type": "integer"
+          },
+          "vistorias_agendadas": {
+            "type": "integer"
+          }
+        }
+      },
+      "ApiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Log": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuario_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "acao": {
+            "type": "string",
+            "example": "CREATE"
+          },
+          "entidade": {
+            "type": "string",
+            "example": "imovel"
+          },
+          "entidade_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "payload": {
+            "type": "object",
+            "nullable": true
+          },
+          "ip": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Não autenticado — token ausente, inválido ou expirado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Erro"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Sem permissão — role insuficiente",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Erro"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Erro"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Dados inválidos",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErroValidacao"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "PathId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "Pagina": {
+        "name": "pagina",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      "PorPagina": {
+        "name": "por_pagina",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 20,
+          "maximum": 100
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "Fundação"
+        ],
+        "summary": "Health check",
+        "description": "Verifica se a API está no ar. Não requer autenticação.",
+        "responses": {
+          "200": {
+            "description": "API operacional",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "example": "ok"
+                        },
+                        "versao": {
+                          "type": "string",
+                          "example": "v1"
+                        },
+                        "horario": {
+                          "type": "string",
+                          "example": "2026-05-31 10:00:00"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Autenticar usuário",
+        "description": "Retorna `access_token` e `refresh_token`. Se MFA estiver ativo, retorna `mfa_required: true` e um `temp_token`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "senha"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "minLength": 8
+                  }
+                }
+              },
+              "example": {
+                "email": "admin@onecheck.com.br",
+                "senha": "Admin@1234"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login bem-sucedido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "oneOf": [
+                        {
+                          "title": "Sem MFA",
+                          "type": "object",
+                          "properties": {
+                            "access_token": {
+                              "type": "string"
+                            },
+                            "refresh_token": {
+                              "type": "string"
+                            },
+                            "usuario": {
+                              "$ref": "#/components/schemas/Usuario"
+                            }
+                          }
+                        },
+                        {
+                          "title": "Com MFA",
+                          "type": "object",
+                          "properties": {
+                            "mfa_required": {
+                              "type": "boolean",
+                              "example": true
+                            },
+                            "temp_token": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMWIyYzNkNC0wMDAxIn0.assinatura",
+                    "refresh_token": "refresh_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+                    "usuario": {
+                      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+                      "nome": "Administrador",
+                      "email": "admin@onecheck.com.br",
+                      "role": "admin",
+                      "mfa_ativo": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/verify": {
+      "post": {
+        "tags": [
+          "MFA"
+        ],
+        "summary": "Verificar código TOTP",
+        "description": "Completa o login quando MFA está ativo. Requer `temp_token` do login e código de 6 dígitos do app autenticador.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "temp_token",
+                  "codigo"
+                ],
+                "properties": {
+                  "temp_token": {
+                    "type": "string"
+                  },
+                  "codigo": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 6
+                  }
+                }
+              },
+              "example": {
+                "temp_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.temp...",
+                "codigo": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MFA verificado — retorna tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "access_token": {
+                          "type": "string"
+                        },
+                        "refresh_token": {
+                          "type": "string"
+                        },
+                        "usuario": {
+                          "$ref": "#/components/schemas/Usuario"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMWIyYzNkNC0wMDAxIn0.assinatura",
+                    "refresh_token": "refresh_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+                    "usuario": {
+                      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+                      "nome": "João Silva",
+                      "email": "joao.silva@exemplo.com",
+                      "role": "locatario",
+                      "mfa_ativo": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Renovar access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refresh_token"
+                ],
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "refresh_token": "refresh_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Novo par de tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "access_token": {
+                          "type": "string"
+                        },
+                        "refresh_token": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMWIyYzNkNC0wMDAxIn0.assinatura",
+                    "refresh_token": "refresh_novob2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Encerrar sessão",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refresh_token"
+                ],
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Logout realizado com sucesso"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/setup": {
+      "get": {
+        "tags": [
+          "MFA"
+        ],
+        "summary": "Configurar MFA",
+        "description": "Retorna o URI `otpauth://` para escanear com Google Authenticator ou Authy.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "URI do QR code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "otpauth_uri": {
+                          "type": "string"
+                        },
+                        "secret": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "otpauth_uri": "otpauth://totp/OneCheck:admin%40onecheck.com.br?secret=JBSWY3DPEHPK3PXP&issuer=OneCheck",
+                    "secret": "JBSWY3DPEHPK3PXP"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/activate": {
+      "post": {
+        "tags": [
+          "MFA"
+        ],
+        "summary": "Ativar MFA",
+        "description": "Confirma que o app autenticador foi configurado corretamente e ativa o MFA na conta.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "codigo"
+                ],
+                "properties": {
+                  "codigo": {
+                    "type": "string",
+                    "minLength": 6,
+                    "maxLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MFA ativado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/mfa/disable": {
+      "post": {
+        "tags": [
+          "MFA"
+        ],
+        "summary": "Desativar MFA (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "usuario_id"
+                ],
+                "properties": {
+                  "usuario_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MFA desativado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios/me": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Perfil do usuário autenticado",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do usuário autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Usuario"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios/me/senha": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Alterar própria senha",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "senha_atual",
+                  "nova_senha"
+                ],
+                "properties": {
+                  "senha_atual": {
+                    "type": "string"
+                  },
+                  "nova_senha": {
+                    "type": "string",
+                    "minLength": 8
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha alterada com sucesso"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Criar usuário (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nome",
+                  "email",
+                  "senha",
+                  "role"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 150
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "minLength": 8
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "vistoriador",
+                      "locatario"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "nome": "João Silva",
+                "email": "joao.silva@exemplo.com",
+                "senha": "Senha@123",
+                "role": "locatario"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Usuario"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "a1b2c3d4-0002-4000-8000-000000000002",
+                    "nome": "João Silva",
+                    "email": "joao.silva@exemplo.com",
+                    "role": "locatario",
+                    "mfa_ativo": false,
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar usuários (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pagina"
+          },
+          {
+            "$ref": "#/components/parameters/PorPagina"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "vistoriador",
+                "locatario"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Usuario"
+                      }
+                    },
+                    "paginacao": {
+                      "$ref": "#/components/schemas/Paginacao"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+                      "nome": "Administrador",
+                      "email": "admin@onecheck.com.br",
+                      "role": "admin",
+                      "mfa_ativo": false,
+                      "created_at": "2026-05-31 10:00:00"
+                    },
+                    {
+                      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+                      "nome": "João Silva",
+                      "email": "joao.silva@exemplo.com",
+                      "role": "locatario",
+                      "mfa_ativo": false,
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ],
+                  "paginacao": {
+                    "total": 2,
+                    "pagina": 1,
+                    "itensPorPagina": 20
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Buscar usuário por ID (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Usuario"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar usuário (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "vistoriador",
+                      "locatario"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Usuario"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Desativar usuário (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário desativado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/imoveis": {
+      "post": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Criar imóvel (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tipo",
+                  "tamanho"
+                ],
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "example": "Apartamento"
+                  },
+                  "tamanho": {
+                    "type": "string",
+                    "example": "80m²"
+                  },
+                  "garagem": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "garagem_vagas": {
+                    "type": "integer",
+                    "default": 0
+                  }
+                }
+              },
+              "example": {
+                "tipo": "Apartamento",
+                "tamanho": "80m²",
+                "garagem": false,
+                "garagem_vagas": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Imóvel criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Imovel"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "b1b2c3d4-0010-4000-8000-000000000010",
+                    "tipo": "Apartamento",
+                    "tamanho": "80m²",
+                    "garagem": false,
+                    "garagem_vagas": 0,
+                    "status": "disponivel",
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Listar imóveis (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pagina"
+          },
+          {
+            "$ref": "#/components/parameters/PorPagina"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "disponivel",
+                "locado",
+                "em_vistoria"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Imovel"
+                      }
+                    },
+                    "paginacao": {
+                      "$ref": "#/components/schemas/Paginacao"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "b1b2c3d4-0010-4000-8000-000000000010",
+                      "tipo": "Apartamento",
+                      "tamanho": "80m²",
+                      "garagem": false,
+                      "garagem_vagas": 0,
+                      "status": "disponivel",
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ],
+                  "paginacao": {
+                    "total": 1,
+                    "pagina": 1,
+                    "itensPorPagina": 20
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/imoveis/{id}": {
+      "get": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Buscar imóvel por ID",
+        "description": "Admin vê qualquer imóvel. Locatário vê apenas o imóvel do seu contrato ativo.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imóvel encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Imovel"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Atualizar imóvel (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string"
+                  },
+                  "tamanho": {
+                    "type": "string"
+                  },
+                  "garagem": {
+                    "type": "boolean"
+                  },
+                  "garagem_vagas": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Imóvel atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Imovel"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Excluir imóvel (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imóvel excluído"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/imoveis/{id}/endereco": {
+      "post": {
+        "tags": [
+          "Endereços"
+        ],
+        "summary": "Criar ou atualizar endereço (admin)",
+        "description": "Geocodificação automática via CEP (ViaCEP + Nominatim).",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "rua",
+                  "numero",
+                  "cidade",
+                  "estado",
+                  "cep"
+                ],
+                "properties": {
+                  "rua": {
+                    "type": "string"
+                  },
+                  "numero": {
+                    "type": "string"
+                  },
+                  "complemento": {
+                    "type": "string"
+                  },
+                  "bloco": {
+                    "type": "string"
+                  },
+                  "andar": {
+                    "type": "string"
+                  },
+                  "cidade": {
+                    "type": "string"
+                  },
+                  "estado": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "cep": {
+                    "type": "string",
+                    "example": "01310-100"
+                  }
+                }
+              },
+              "example": {
+                "rua": "Rua das Flores",
+                "numero": "123",
+                "complemento": "Apto 42",
+                "cidade": "São Paulo",
+                "estado": "SP",
+                "cep": "01310-100"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Endereço salvo com lat/lng preenchidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Endereco"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "e1e2e3e4-0001-4000-8000-000000000001",
+                    "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                    "rua": "Rua das Flores",
+                    "numero": "123",
+                    "complemento": "Apto 42",
+                    "bloco": null,
+                    "andar": null,
+                    "cidade": "São Paulo",
+                    "estado": "SP",
+                    "cep": "01310-100",
+                    "latitude": -23.5505,
+                    "longitude": -46.6333
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Endereços"
+        ],
+        "summary": "Buscar endereço do imóvel",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Endereço do imóvel",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Endereco"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/imoveis/{id}/comodos": {
+      "post": {
+        "tags": [
+          "Cômodos"
+        ],
+        "summary": "Criar cômodo (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tipo"
+                ],
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "example": "Sala"
+                  },
+                  "descricao": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "tipo": "Sala",
+                "descricao": "Sala de estar com varanda"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cômodo criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Comodo"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "f1b2c3d4-0050-4000-8000-000000000050",
+                    "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                    "tipo": "Sala",
+                    "descricao": "Sala de estar com varanda"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Cômodos"
+        ],
+        "summary": "Listar cômodos do imóvel",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de cômodos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Comodo"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "f1b2c3d4-0050-4000-8000-000000000050",
+                      "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                      "tipo": "Sala",
+                      "descricao": "Sala de estar com varanda"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/imoveis/{id}/comodos/{comodo_id}": {
+      "put": {
+        "tags": [
+          "Cômodos"
+        ],
+        "summary": "Atualizar cômodo (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          },
+          {
+            "name": "comodo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tipo": {
+                    "type": "string"
+                  },
+                  "descricao": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cômodo atualizado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cômodos"
+        ],
+        "summary": "Excluir cômodo (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          },
+          {
+            "name": "comodo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cômodo excluído"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos": {
+      "post": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Criar contrato (admin)",
+        "description": "Vincula imóvel e locatário. Atualiza o status do imóvel para `locado`.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "imovel_id",
+                  "locatario_id",
+                  "data_inicio",
+                  "data_fim"
+                ],
+                "properties": {
+                  "imovel_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "locatario_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "data_inicio": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "data_fim": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              },
+              "example": {
+                "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                "locatario_id": "a1b2c3d4-0002-4000-8000-000000000002",
+                "data_inicio": "2026-06-01",
+                "data_fim": "2027-06-01"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contrato criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Contrato"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "c1b2c3d4-0020-4000-8000-000000000020",
+                    "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                    "locatario_id": "a1b2c3d4-0002-4000-8000-000000000002",
+                    "data_inicio": "2026-06-01",
+                    "data_fim": "2027-06-01",
+                    "status": "ativo",
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Listar contratos",
+        "description": "Admin vê todos. Locatário vê apenas os seus.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pagina"
+          },
+          {
+            "$ref": "#/components/parameters/PorPagina"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ativo",
+                "encerrado",
+                "cancelado"
+              ]
+            }
+          },
+          {
+            "name": "imovel_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Contrato"
+                      }
+                    },
+                    "paginacao": {
+                      "$ref": "#/components/schemas/Paginacao"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "c1b2c3d4-0020-4000-8000-000000000020",
+                      "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                      "locatario_id": "a1b2c3d4-0002-4000-8000-000000000002",
+                      "data_inicio": "2026-06-01",
+                      "data_fim": "2027-06-01",
+                      "status": "ativo",
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ],
+                  "paginacao": {
+                    "total": 1,
+                    "pagina": 1,
+                    "itensPorPagina": 20
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos/{id}": {
+      "get": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Buscar contrato por ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contrato encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Contrato"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos/{id}/encerrar": {
+      "patch": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Encerrar contrato (admin)",
+        "description": "Muda o status para `encerrado` e libera o imóvel.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contrato encerrado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos/{id}/cancelar": {
+      "patch": {
+        "tags": [
+          "Contratos"
+        ],
+        "summary": "Cancelar contrato (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contrato cancelado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/itens-vistoria": {
+      "get": {
+        "tags": [
+          "Itens de Vistoria"
+        ],
+        "summary": "Listar itens de vistoria padrão",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de itens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItemVistoria"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos/{id}/checklists": {
+      "post": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Criar checklist (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "vistoriador_id",
+                  "tipo"
+                ],
+                "properties": {
+                  "vistoriador_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "tipo": {
+                    "type": "string",
+                    "enum": [
+                      "inicial",
+                      "encerramento"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "vistoriador_id": "a1b2c3d4-0003-4000-8000-000000000003",
+                "tipo": "inicial"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Checklist criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Checklist"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "d1b2c3d4-0030-4000-8000-000000000030",
+                    "contrato_id": "c1b2c3d4-0020-4000-8000-000000000020",
+                    "vistoriador_id": "a1b2c3d4-0003-4000-8000-000000000003",
+                    "tipo": "inicial",
+                    "status": "em_preenchimento",
+                    "data_vistoria": null,
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Listar checklists do contrato",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de checklists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Checklist"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "d1b2c3d4-0030-4000-8000-000000000030",
+                      "contrato_id": "c1b2c3d4-0020-4000-8000-000000000020",
+                      "vistoriador_id": "a1b2c3d4-0003-4000-8000-000000000003",
+                      "tipo": "inicial",
+                      "status": "em_preenchimento",
+                      "data_vistoria": null,
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}": {
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Buscar checklist por ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklist com itens e fotos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Checklist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/enviar-para-aceite": {
+      "patch": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Enviar checklist para aceite (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status alterado para pendente_aceite"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/submeter": {
+      "patch": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Submeter checklist (vistoriador)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklist submetido"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/itens": {
+      "post": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Adicionar item ao checklist (vistoriador)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "comodo_id",
+                  "item_vistoria_id",
+                  "estado"
+                ],
+                "properties": {
+                  "comodo_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "item_vistoria_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "estado": {
+                    "type": "string",
+                    "enum": [
+                      "otimo",
+                      "bom",
+                      "regular",
+                      "ruim"
+                    ]
+                  },
+                  "observacao": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "comodo_id": "f1b2c3d4-0050-4000-8000-000000000050",
+                "item_vistoria_id": "f2b2c3d4-0055-4000-8000-000000000055",
+                "estado": "bom",
+                "observacao": "Pequeno risco na parede"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item adicionado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/ChecklistItem"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "e1b2c3d4-0040-4000-8000-000000000040",
+                    "checklist_id": "d1b2c3d4-0030-4000-8000-000000000030",
+                    "comodo_id": "f1b2c3d4-0050-4000-8000-000000000050",
+                    "item_vistoria_id": "f2b2c3d4-0055-4000-8000-000000000055",
+                    "estado": "bom",
+                    "observacao": "Pequeno risco na parede",
+                    "fotos": [],
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/itens/{item_id}": {
+      "put": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Atualizar item do checklist (vistoriador)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": {
+                    "type": "string",
+                    "enum": [
+                      "otimo",
+                      "bom",
+                      "regular",
+                      "ruim"
+                    ]
+                  },
+                  "observacao": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item atualizado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/itens/{item_id}/fotos": {
+      "post": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Upload de foto para item (vistoriador)",
+        "description": "Aceita apenas JPG e PNG. Tamanho máximo: 10MB.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "foto": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Foto enviada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/FotoChecklist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/itens/{item_id}/fotos/{foto_id}": {
+      "delete": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Excluir foto de item (vistoriador)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "foto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Foto excluída"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/aceitar": {
+      "post": {
+        "tags": [
+          "Aceite"
+        ],
+        "summary": "Aceitar checklist (locatário)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklist aceito"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/rejeitar": {
+      "post": {
+        "tags": [
+          "Aceite"
+        ],
+        "summary": "Rejeitar checklist (locatário)",
+        "description": "Muda status para `pendente_revisao`. Campo `motivo` é obrigatório.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "motivo"
+                ],
+                "properties": {
+                  "motivo": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "motivo": "Há danos nas paredes que não foram registrados corretamente"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checklist rejeitado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{id}/download": {
+      "get": {
+        "tags": [
+          "Aceite"
+        ],
+        "summary": "Download do checklist em PDF",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos/{id}/agendamentos": {
+      "post": {
+        "tags": [
+          "Agendamentos"
+        ],
+        "summary": "Criar agendamento (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tipo",
+                  "data_agendada"
+                ],
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "enum": [
+                      "inicial",
+                      "encerramento"
+                    ]
+                  },
+                  "data_agendada": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "observacao": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "tipo": "inicial",
+                "data_agendada": "2026-06-15 09:00:00",
+                "observacao": "Trazer chave reserva"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agendamento criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Agendamento"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "b2b2c3d4-0070-4000-8000-000000000070",
+                    "contrato_id": "c1b2c3d4-0020-4000-8000-000000000020",
+                    "tipo": "inicial",
+                    "data_agendada": "2026-06-15 09:00:00",
+                    "observacao": "Trazer chave reserva",
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Agendamentos"
+        ],
+        "summary": "Listar agendamentos do contrato",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de agendamentos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Agendamento"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "b2b2c3d4-0070-4000-8000-000000000070",
+                      "contrato_id": "c1b2c3d4-0020-4000-8000-000000000020",
+                      "tipo": "inicial",
+                      "data_agendada": "2026-06-15 09:00:00",
+                      "observacao": "Trazer chave reserva",
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/agendamentos/{id}": {
+      "put": {
+        "tags": [
+          "Agendamentos"
+        ],
+        "summary": "Atualizar agendamento (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data_agendada": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "observacao": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agendamento atualizado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Agendamentos"
+        ],
+        "summary": "Excluir agendamento (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento excluído"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/contratos/{id}/problemas": {
+      "post": {
+        "tags": [
+          "Problemas"
+        ],
+        "summary": "Registrar problema (locatário)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "comodo_id",
+                  "titulo",
+                  "descricao"
+                ],
+                "properties": {
+                  "comodo_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "titulo": {
+                    "type": "string"
+                  },
+                  "descricao": {
+                    "type": "string"
+                  },
+                  "foto_url": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "comodo_id": "f1b2c3d4-0050-4000-8000-000000000050",
+                "titulo": "Vazamento na torneira",
+                "descricao": "A torneira da cozinha está pingando constantemente",
+                "foto_url": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Problema registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Problema"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "a2b2c3d4-0060-4000-8000-000000000060",
+                    "contrato_id": "c1b2c3d4-0020-4000-8000-000000000020",
+                    "comodo_id": "f1b2c3d4-0050-4000-8000-000000000050",
+                    "titulo": "Vazamento na torneira",
+                    "descricao": "A torneira da cozinha está pingando constantemente",
+                    "foto_url": null,
+                    "status": "aberto",
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Problemas"
+        ],
+        "summary": "Listar problemas do contrato",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de problemas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Problema"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "a2b2c3d4-0060-4000-8000-000000000060",
+                      "contrato_id": "c1b2c3d4-0020-4000-8000-000000000020",
+                      "comodo_id": "f1b2c3d4-0050-4000-8000-000000000050",
+                      "titulo": "Vazamento na torneira",
+                      "descricao": "A torneira da cozinha está pingando constantemente",
+                      "foto_url": null,
+                      "status": "aberto",
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/problemas/{id}": {
+      "get": {
+        "tags": [
+          "Problemas"
+        ],
+        "summary": "Buscar problema por ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Problema encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Problema"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/problemas/{id}/status": {
+      "patch": {
+        "tags": [
+          "Problemas"
+        ],
+        "summary": "Atualizar status do problema (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "aberto",
+                      "em_andamento",
+                      "resolvido"
+                    ]
+                  }
+                }
+              },
+              "example": {
+                "status": "em_andamento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status atualizado"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/problemas/{id}/atualizacoes": {
+      "post": {
+        "tags": [
+          "Problemas"
+        ],
+        "summary": "Adicionar atualização ao problema (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "descricao"
+                ],
+                "properties": {
+                  "descricao": {
+                    "type": "string"
+                  },
+                  "foto_url": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "descricao": "Técnico agendado para amanhã às 14h",
+                "foto_url": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Atualização criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/AtualizacaoProblema"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "d3b2c3d4-0091-4000-8000-000000000091",
+                    "problema_id": "a2b2c3d4-0060-4000-8000-000000000060",
+                    "autor_id": "a1b2c3d4-0001-4000-8000-000000000001",
+                    "descricao": "Técnico agendado para amanhã às 14h",
+                    "foto_url": null,
+                    "created_at": "2026-05-31 10:00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Problemas"
+        ],
+        "summary": "Listar atualizações do problema",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de atualizações em ordem cronológica",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AtualizacaoProblema"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "d3b2c3d4-0091-4000-8000-000000000091",
+                      "problema_id": "a2b2c3d4-0060-4000-8000-000000000060",
+                      "autor_id": "a1b2c3d4-0001-4000-8000-000000000001",
+                      "descricao": "Técnico agendado para amanhã às 14h",
+                      "foto_url": null,
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Estatísticas gerais (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contagens agregadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "$ref": "#/components/schemas/Dashboard"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "imoveis_locados": 12,
+                    "checklists_pendentes": 3,
+                    "problemas_abertos": 5,
+                    "vistorias_agendadas": 2
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/api-keys": {
+      "post": {
+        "tags": [
+          "API Keys"
+        ],
+        "summary": "Criar API key (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nome"
+                ],
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "nome": "App Mobile v1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "API key criada — guarde a chave, ela não será exibida novamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "nome": {
+                          "type": "string"
+                        },
+                        "chave": {
+                          "type": "string",
+                          "description": "Exibida apenas uma vez"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "c2b2c3d4-0080-4000-8000-000000000080",
+                    "nome": "App Mobile v1",
+                    "chave": "oc_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "API Keys"
+        ],
+        "summary": "Listar API keys (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de chaves",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApiKey"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "c2b2c3d4-0080-4000-8000-000000000080",
+                      "nome": "App Mobile v1",
+                      "ativo": true,
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/api/v1/api-keys/{id}": {
+      "delete": {
+        "tags": [
+          "API Keys"
+        ],
+        "summary": "Revogar API key (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key revogada"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/public/imoveis": {
+      "get": {
+        "tags": [
+          "API Pública"
+        ],
+        "summary": "Listar imóveis (API key)",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de imóveis com status"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/public/imoveis/{id}/checklist-status": {
+      "get": {
+        "tags": [
+          "API Pública"
+        ],
+        "summary": "Status do checklist ativo do imóvel (API key)",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PathId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status do checklist"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/v1/logs": {
+      "get": {
+        "tags": [
+          "Logs"
+        ],
+        "summary": "Consultar logs de operação (admin)",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Pagina"
+          },
+          {
+            "$ref": "#/components/parameters/PorPagina"
+          },
+          {
+            "name": "entidade",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "imovel"
+            }
+          },
+          {
+            "name": "usuario_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "de",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-01-01"
+            }
+          },
+          {
+            "name": "ate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-12-31"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Log"
+                      }
+                    },
+                    "paginacao": {
+                      "$ref": "#/components/schemas/Paginacao"
+                    }
+                  }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": [
+                    {
+                      "id": "d2b2c3d4-0090-4000-8000-000000000090",
+                      "usuario_id": "a1b2c3d4-0001-4000-8000-000000000001",
+                      "acao": "CREATE",
+                      "entidade": "imovel",
+                      "entidade_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                      "payload": {
+                        "tipo": "Apartamento",
+                        "tamanho": "80m²"
+                      },
+                      "ip": "192.168.1.100",
+                      "created_at": "2026-05-31 10:00:00"
+                    }
+                  ],
+                  "paginacao": {
+                    "total": 142,
+                    "pagina": 1,
+                    "itensPorPagina": 20
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    }
+  }
+}
