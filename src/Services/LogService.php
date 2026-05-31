@@ -7,13 +7,18 @@ namespace App\Services;
 use App\Helpers\Requisicao;
 use App\Helpers\UsuarioAutenticado;
 use App\Helpers\Uuid;
+use App\Models\LogModel;
 use PDO;
 
 class LogService
 {
+    private readonly LogModel $logModel;
+
     public function __construct(
         private readonly PDO $conexao
-    ) {}
+    ) {
+        $this->logModel = new LogModel($conexao);
+    }
 
     public function registrar(
         string $acao,
@@ -33,6 +38,35 @@ class LogService
         string $usuarioId
     ): void {
         $this->gravar($acao, $entidade, $entidadeId, $payload, $usuarioId);
+    }
+
+    /**
+     * Lista registros de log com filtros opcionais e paginação.
+     *
+     * @return array{itens: list<array>, total: int, pagina: int, itensPorPagina: int}
+     */
+    public function listar(
+        int $pagina,
+        int $itensPorPagina,
+        string|null $entidade,
+        string|null $usuarioId,
+        string|null $de,
+        string|null $ate
+    ): array {
+        $pagina         = max(1, $pagina);
+        $itensPorPagina = max(1, min(100, $itensPorPagina));
+
+        $itens = $this->logModel->listar($pagina, $itensPorPagina, $entidade, $usuarioId, $de, $ate);
+        $total = $this->logModel->contar($entidade, $usuarioId, $de, $ate);
+
+        $itens = array_map(static function (array $item): array {
+            if ($item['payload'] !== null) {
+                $item['payload'] = json_decode($item['payload'], associative: true);
+            }
+            return $item;
+        }, $itens);
+
+        return compact('itens', 'total', 'pagina', 'itensPorPagina');
     }
 
     private function gravar(

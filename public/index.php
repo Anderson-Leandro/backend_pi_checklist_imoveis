@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AgendamentoController;
+use App\Controllers\LogController;
 use App\Controllers\ApiKeyController;
 use App\Controllers\AuthController;
 use App\Controllers\ChecklistController;
@@ -147,6 +148,7 @@ $publicService          = new PublicService(
     $checklistModel
 );
 $publicController       = new PublicController($publicService);
+$logController         = new LogController($logService);
 $authMiddleware        = new AuthMiddleware();
 $roleMiddleware        = new RoleMiddleware();
 
@@ -392,6 +394,12 @@ $roteador->post('/api/v1/checklists/{id}/rejeitar', [$checklistController, 'reje
 $roteador->get('/api/v1/checklists/{id}/download', [$checklistController, 'downloadPdf'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('locatario'),
+]);
+
+// ── Fase 11: logs de operação ────────────────────────────────────────────────
+$roteador->get('/api/v1/logs', [$logController, 'listar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
 ]);
 
 // ── Fase 10: dashboard, API keys e API pública ───────────────────────────────

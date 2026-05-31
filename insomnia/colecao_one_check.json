@@ -12110,6 +12110,365 @@
           ]
         }
       ]
+    },
+    {
+      "name": "📁 Fase 11 — Logs de Operação",
+      "item": [
+        {
+          "name": "📂 Logs (GET /logs)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin lista logs sem filtros (GET /logs)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/logs",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "logs"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin. Retorna lista paginada de todos os logs de operação."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test(\"Status HTTP deve ser 200\", () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test(\"sucesso deve ser true\", () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test(\"dados deve ser array\", () => {",
+                          "        insomnia.expect(body.dados).to.be.an(\"array\");",
+                          "    });",
+                          "    insomnia.test(\"paginacao.total deve ser inteiro\", () => {",
+                          "        insomnia.expect(body.paginacao.total).to.be.a(\"number\");",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test(\"Body deve ser JSON valido\", () => {",
+                          "        insomnia.expect.fail(\"Resposta nao e JSON valido: \" + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin filtra logs por entidade (GET /logs?entidade=usuario)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/logs?entidade=usuario",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "logs"
+                      ],
+                      "query": [
+                        {
+                          "key": "entidade",
+                          "value": "usuario"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Filtra apenas logs cuja entidade seja \"usuario\"."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test(\"Status HTTP deve ser 200\", () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test(\"Todos os itens devem ter entidade=usuario\", () => {",
+                          "        (body.dados || []).forEach(log => {",
+                          "            insomnia.expect(log.entidade).to.equal(\"usuario\");",
+                          "        });",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test(\"Body deve ser JSON valido\", () => {",
+                          "        insomnia.expect.fail(\"Resposta nao e JSON valido: \" + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin filtra logs por periodo (GET /logs?de=2026-01-01&ate=2026-12-31)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/logs?de=2026-01-01&ate=2026-12-31",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "logs"
+                      ],
+                      "query": [
+                        {
+                          "key": "de",
+                          "value": "2026-01-01"
+                        },
+                        {
+                          "key": "ate",
+                          "value": "2026-12-31"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Filtra logs gerados entre 2026-01-01 e 2026-12-31."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test(\"Status HTTP deve ser 200\", () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test(\"sucesso deve ser true\", () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test(\"Body deve ser JSON valido\", () => {",
+                          "        insomnia.expect.fail(\"Resposta nao e JSON valido: \" + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin pagina logs (GET /logs?pagina=1&por_pagina=5)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/logs?pagina=1&por_pagina=5",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "logs"
+                      ],
+                      "query": [
+                        {
+                          "key": "pagina",
+                          "value": "1"
+                        },
+                        {
+                          "key": "por_pagina",
+                          "value": "5"
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Retorna no máximo 5 itens por página."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test(\"Status HTTP deve ser 200\", () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test(\"itensPorPagina deve ser 5\", () => {",
+                          "        insomnia.expect(body.paginacao.itensPorPagina).to.equal(5);",
+                          "    });",
+                          "    insomnia.test(\"dados nao deve exceder 5 itens\", () => {",
+                          "        insomnia.expect(body.dados.length).to.be.at.most(5);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test(\"Body deve ser JSON valido\", () => {",
+                          "        insomnia.expect.fail(\"Resposta nao e JSON valido: \" + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Locatário não pode listar logs → 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/logs",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "logs"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário. Apenas admin pode acessar os logs."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test(\"Status HTTP deve ser 403\", () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(403);",
+                          "    });",
+                          "    insomnia.test(\"sucesso deve ser false\", () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test(\"Body deve ser JSON valido\", () => {",
+                          "        insomnia.expect.fail(\"Resposta nao e JSON valido: \" + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token → 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/logs",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "logs"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test(\"Status HTTP deve ser 401\", () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test(\"sucesso deve ser false\", () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test(\"Body deve ser JSON valido\", () => {",
+                          "        insomnia.expect.fail(\"Resposta nao e JSON valido: \" + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

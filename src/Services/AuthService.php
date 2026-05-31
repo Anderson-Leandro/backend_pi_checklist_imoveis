@@ -39,6 +39,12 @@ class AuthService
         $usuario = $this->usuarioModel->buscarPorEmailComCredenciais($dados['email']);
 
         if ($usuario === null || !password_verify($dados['senha'], $usuario['senha_hash'])) {
+            $this->logService->registrar(
+                acao:       'LOGIN_FALHO',
+                entidade:   'usuario',
+                entidadeId: $usuario['id'] ?? null,
+                payload:    ['email' => $dados['email']],
+            );
             throw new NaoAutorizadoException('Credenciais inválidas');
         }
 
