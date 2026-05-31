@@ -5293,6 +5293,1445 @@
           ]
         }
       ]
+    },
+    {
+      "name": "📁 Fase 5 — Contratos",
+      "item": [
+        {
+          "name": "📄 Criar Contrato (POST /api/v1/contratos)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cria contrato valido e retorna 201",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Cria um contrato ativo. Salva contrato_id em variável de ambiente.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"{{imovel_id}}\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-01-01\",\n  \"data_fim\": \"2027-01-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 201', () => { insomnia.expect(insomnia.response.status).to.equal(201); });",
+                          "    insomnia.test('body.sucesso deve ser True', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(true); });",
+                          "    insomnia.test('body.dados.id deve ser UUID v4', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i); });",
+                          "    insomnia.test('dados.status deve ser ativo', () => { insomnia.expect(body.dados.status).to.equal('ativo'); });",
+                          "    insomnia.test('dados.imovel_id deve bater', () => { insomnia.expect(body.dados.imovel_id).to.equal(insomnia.environment.get('imovel_id')); });",
+                          "    insomnia.environment.set('contrato_id', body.dados.id);",
+                          "} catch(e) { insomnia.test('Parse JSON', () => { throw e; }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Body vazio retorna 422 com todos os campos obrigatorios",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "imovel_id, locatario_id, data_inicio e data_fim são obrigatórios.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('erros.imovel_id', () => { insomnia.expect(body.erros.imovel_id).to.be.a('string'); });",
+                          "insomnia.test('erros.locatario_id', () => { insomnia.expect(body.erros.locatario_id).to.be.a('string'); });",
+                          "insomnia.test('erros.data_inicio', () => { insomnia.expect(body.erros.data_inicio).to.be.a('string'); });",
+                          "insomnia.test('erros.data_fim', () => { insomnia.expect(body.erros.data_fim).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "data_fim anterior a data_inicio retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "data_fim deve ser estritamente posterior a data_inicio.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"{{imovel_id}}\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-06-01\",\n  \"data_fim\": \"2026-05-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('erros.data_fim deve existir', () => { insomnia.expect(body.erros.data_fim).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Segundo contrato ativo no mesmo imovel retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Imóvel já possui contrato ativo — regra de negócio.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"{{imovel_id}}\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-01-01\",\n  \"data_fim\": \"2027-01-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('erro deve ser string', () => { insomnia.expect(body.erro).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "imovel_id invalido retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"nao-e-uuid\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-01-01\",\n  \"data_fim\": \"2027-01-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('erros.imovel_id', () => { insomnia.expect(body.erros.imovel_id).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Imovel inexistente retorna 404",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"00000000-0000-4000-a000-000000000000\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-01-01\",\n  \"data_fim\": \"2027-01-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": "",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"{{imovel_id}}\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-01-01\",\n  \"data_fim\": \"2027-01-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('trace nao deve ser exposto', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.trace).to.be.undefined; });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode criar contrato — retorna 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Trocar o token para o de um locatário antes de enviar.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"imovel_id\": \"{{imovel_id}}\",\n  \"locatario_id\": \"{{locatario_id}}\",\n  \"data_inicio\": \"2026-01-01\",\n  \"data_fim\": \"2027-01-01\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📋 Listar Contratos (GET /api/v1/contratos)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin lista contratos com paginacao",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Retorna lista paginada de todos os contratos."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('body.sucesso deve ser True', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(true); });",
+                          "insomnia.test('dados deve ser array', () => { insomnia.expect(body.dados).to.be.an('array'); });",
+                          "insomnia.test('paginacao.total deve ser inteiro', () => { insomnia.expect(body.paginacao.total).to.be.a('number'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Filtro por status=ativo",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos?status=ativo",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos?status=ativo"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Retorna apenas contratos com status ativo."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('todos os contratos devem ser ativos', () => { body.dados.forEach(c => insomnia.expect(c.status).to.equal('ativo')); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Filtro por imovel_id",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos?imovel_id={{imovel_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos?imovel_id={{imovel_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Retorna apenas contratos do imóvel filtrado."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('todos devem ser do imovel filtrado', () => { body.dados.forEach(c => insomnia.expect(c.imovel_id).to.equal(insomnia.environment.get('imovel_id'))); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario lista apenas os proprios contratos",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário — o Service filtra automaticamente pelo locatario_id."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "// Verificar manualmente que todos os contratos pertencem ao locatário autenticado"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('trace nao deve ser exposto', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.trace).to.be.undefined; });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔍 Buscar Contrato por ID (GET /api/v1/contratos/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin busca contrato por ID",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Retorna os dados completos do contrato."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('body.sucesso deve ser True', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(true); });",
+                          "insomnia.test('body.dados.id deve ser UUID v4', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i); });",
+                          "insomnia.test('dados.status deve ser string', () => { insomnia.expect(body.dados.status).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario acessa o proprio contrato",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário dono do contrato."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('body.sucesso deve ser True', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(true); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Contrato inexistente retorna 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/00000000-0000-4000-a000-000000000000",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('erro deve ser string', () => { insomnia.expect(body.erro).to.be.a('string'); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao acessa contrato de outro — 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário diferente do dono do contrato."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('trace nao deve ser exposto', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.trace).to.be.undefined; });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "🔒 Encerrar Contrato (PATCH /api/v1/contratos/{id}/encerrar)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin encerra contrato ativo — status vira encerrado",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/encerrar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "encerrar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Encerra o contrato e libera o imóvel (status volta a disponivel)."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('body.sucesso deve ser True', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(true); });",
+                          "insomnia.test('dados.status deve ser encerrado', () => { insomnia.expect(body.dados.status).to.equal('encerrado'); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Encerrar contrato ja encerrado retorna 422",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/encerrar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "encerrar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Contrato já encerrado — regra de negócio."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Contrato inexistente retorna 404",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/00000000-0000-4000-a000-000000000000/encerrar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "00000000-0000-4000-a000-000000000000",
+                        "encerrar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/encerrar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "encerrar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('trace nao deve ser exposto', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.trace).to.be.undefined; });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode encerrar — 403",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/encerrar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "encerrar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "❌ Cancelar Contrato (PATCH /api/v1/contratos/{id}/cancelar)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin cancela contrato ativo — status vira cancelado",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/cancelar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "cancelar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Cancela o contrato e libera o imóvel."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 200', () => { insomnia.expect(insomnia.response.status).to.equal(200); });",
+                          "insomnia.test('body.sucesso deve ser True', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(true); });",
+                          "insomnia.test('dados.status deve ser cancelado', () => { insomnia.expect(body.dados.status).to.equal('cancelado'); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Cancelar contrato ja cancelado retorna 422",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/cancelar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "cancelar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 422', () => { insomnia.expect(insomnia.response.status).to.equal(422); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Contrato inexistente retorna 404",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/00000000-0000-4000-a000-000000000000/cancelar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "00000000-0000-4000-a000-000000000000",
+                        "cancelar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 404', () => { insomnia.expect(insomnia.response.status).to.equal(404); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sem token retorna 401",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/cancelar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "cancelar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 401', () => { insomnia.expect(insomnia.response.status).to.equal(401); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });",
+                          "insomnia.test('trace nao deve ser exposto', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.trace).to.be.undefined; });"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario nao pode cancelar — 403",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/cancelar",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "cancelar"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de locatário."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const body = JSON.parse(insomnia.response.body);",
+                          "insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
+                          "insomnia.test('body.sucesso deve ser False', () => { const b = JSON.parse(insomnia.response.body); insomnia.expect(b.body.sucesso).to.equal(false); });"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\ContratoController;
 use App\Controllers\ImovelController;
 use App\Controllers\UsuarioController;
 use App\Database\Conexao;
@@ -15,12 +16,14 @@ use App\Helpers\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 use App\Models\ComodoModel;
+use App\Models\ContratoModel;
 use App\Models\EnderecoModel;
 use App\Models\ImovelModel;
 use App\Models\RefreshTokenModel;
 use App\Models\UsuarioModel;
 use App\Router;
 use App\Services\AuthService;
+use App\Services\ContratoService;
 use App\Services\GeocodingService;
 use App\Services\ImovelService;
 use App\Services\LogService;
@@ -55,6 +58,9 @@ $comodoModel       = new ComodoModel($conexao);
 $geocodingService  = new GeocodingService();
 $imovelService     = new ImovelService($imovelModel, $enderecoModel, $comodoModel, $geocodingService, $logService);
 $imovelController  = new ImovelController($imovelService);
+$contratoModel     = new ContratoModel($conexao);
+$contratoService   = new ContratoService($contratoModel, $imovelModel, $usuarioModel, $logService);
+$contratoController = new ContratoController($contratoService);
 $authMiddleware    = new AuthMiddleware();
 $roleMiddleware    = new RoleMiddleware();
 
@@ -160,6 +166,30 @@ $roteador->put('/api/v1/imoveis/{id}/comodos/{comodo_id}', [$imovelController, '
     $roleMiddleware->verificar('admin'),
 ]);
 $roteador->delete('/api/v1/imoveis/{id}/comodos/{comodo_id}', [$imovelController, 'excluirComodo'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// ── Fase 5: contratos ─────────────────────────────────────────────────────────
+$roteador->post('/api/v1/contratos', [$contratoController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+// GET lista: admin vê todos, locatário vê apenas os seus (filtro no Service)
+$roteador->get('/api/v1/contratos', [$contratoController, 'listar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+// GET por ID: admin e locatário (só o seu — verificação no Service)
+$roteador->get('/api/v1/contratos/{id}', [$contratoController, 'buscarPorId'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->patch('/api/v1/contratos/{id}/encerrar', [$contratoController, 'encerrar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->patch('/api/v1/contratos/{id}/cancelar', [$contratoController, 'cancelar'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('admin'),
 ]);
