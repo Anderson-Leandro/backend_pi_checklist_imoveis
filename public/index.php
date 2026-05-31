@@ -8,6 +8,7 @@ use App\Controllers\ChecklistController;
 use App\Controllers\ContratoController;
 use App\Controllers\ImovelController;
 use App\Controllers\ItemVistoriaController;
+use App\Controllers\ProblemaController;
 use App\Controllers\UsuarioController;
 use App\Database\Conexao;
 use App\Exceptions\AcessoNegadoException;
@@ -20,6 +21,7 @@ use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 use App\Models\AceiteChecklistModel;
 use App\Models\AgendamentoModel;
+use App\Models\AtualizacaoProblemaModel;
 use App\Models\ChecklistItemModel;
 use App\Models\ChecklistModel;
 use App\Models\ComodoModel;
@@ -29,6 +31,7 @@ use App\Models\FotoChecklistModel;
 use App\Models\ImovelModel;
 use App\Models\ItemVistoriaModel;
 use App\Models\RefreshTokenModel;
+use App\Models\RegistroProblemaModel;
 use App\Models\UsuarioModel;
 use App\Router;
 use App\Services\AgendamentoService;
@@ -40,7 +43,9 @@ use App\Services\ImovelService;
 use App\Services\ItemVistoriaService;
 use App\Services\LogService;
 use App\Services\MfaService;
+use App\Services\NotificationService;
 use App\Services\PdfService;
+use App\Services\ProblemaService;
 use App\Services\Storage\LocalStorageService;
 use App\Services\UsuarioService;
 use Dotenv\Dotenv;
@@ -103,6 +108,19 @@ $checklistController    = new ChecklistController($checklistService);
 $agendamentoModel      = new AgendamentoModel($conexao);
 $agendamentoService    = new AgendamentoService($agendamentoModel, $contratoModel, $logService);
 $agendamentoController = new AgendamentoController($agendamentoService);
+$notificationService    = new NotificationService($usuarioModel);
+$registroProblemaModel  = new RegistroProblemaModel($conexao);
+$atualizacaoProblemaModel = new AtualizacaoProblemaModel($conexao);
+$problemaService        = new ProblemaService(
+    $registroProblemaModel,
+    $atualizacaoProblemaModel,
+    $contratoModel,
+    $comodoModel,
+    $localStorageService,
+    $logService,
+    $notificationService
+);
+$problemaController     = new ProblemaController($problemaService);
 $authMiddleware        = new AuthMiddleware();
 $roleMiddleware        = new RoleMiddleware();
 
@@ -303,6 +321,37 @@ $roteador->put('/api/v1/agendamentos/{id}', [$agendamentoController, 'atualizar'
 $roteador->delete('/api/v1/agendamentos/{id}', [$agendamentoController, 'excluir'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('admin'),
+]);
+
+// ── Fase 9: registro de problemas ────────────────────────────────────────────
+// Problemas por contrato
+$roteador->post('/api/v1/contratos/{id}/problemas', [$problemaController, 'criar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->get('/api/v1/contratos/{id}/problemas', [$problemaController, 'listarPorContrato'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+
+// Problema individual
+$roteador->get('/api/v1/problemas/{id}', [$problemaController, 'buscarPorId'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->patch('/api/v1/problemas/{id}/status', [$problemaController, 'atualizarStatus'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// Atualizações de problema
+$roteador->post('/api/v1/problemas/{id}/atualizacoes', [$problemaController, 'criarAtualizacao'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->get('/api/v1/problemas/{id}/atualizacoes', [$problemaController, 'listarAtualizacoes'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
 ]);
 
 // ── Fase 7: aceite do checklist e download PDF ────────────────────────────────

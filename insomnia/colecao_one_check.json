@@ -9201,13 +9201,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "aceitar"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token do locatário dono do contrato. Checklist deve estar com status 'pendente_aceite'. Muda status para 'aceito'."
                   },
@@ -9250,13 +9267,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/rejeitar",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "rejeitar"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "rejeitar"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
@@ -9300,12 +9334,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "download"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/pdf"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/pdf"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de admin. Gera e retorna o PDF completo do checklist como download (Content-Disposition: attachment)."
                   },
@@ -9337,12 +9385,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "download"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/pdf"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/pdf"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token do locatário dono do contrato. Baixa o PDF do checklist."
                   },
@@ -9375,12 +9437,26 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "aceitar"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "description": "Sem Authorization header."
                   },
@@ -9417,13 +9493,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "aceitar"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de admin. Role insuficiente — apenas locatário pode aceitar."
                   },
@@ -9457,13 +9550,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "aceitar"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token do locatário. Checklist já aceito ou em status diferente de 'pendente_aceite'."
                   },
@@ -9497,13 +9607,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/rejeitar",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "rejeitar"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "rejeitar"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
@@ -9544,11 +9671,22 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "download"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/json"}
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
                     "description": "Sem Authorization header."
                   },
@@ -9585,12 +9723,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "{{checklist_id}}",
+                        "download"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de vistoriador. Apenas admin e locatário podem baixar o PDF."
                   },
@@ -9624,12 +9776,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/checklists/00000000-0000-4000-a000-000000000000/download",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "checklists", "00000000-0000-4000-a000-000000000000", "download"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "checklists",
+                        "00000000-0000-4000-a000-000000000000",
+                        "download"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de admin. UUID de checklist que não existe."
                   },
@@ -9678,13 +9844,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "agendamentos"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
@@ -9731,12 +9914,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "agendamentos"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de admin ou vistoriador. Retorna lista de agendamentos ordenada por data_agendada ASC."
                   },
@@ -9773,13 +9970,29 @@
                     "method": "PUT",
                     "url": {
                       "raw": "{{base_url}}/api/v1/agendamentos/{{agendamento_id}}",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "agendamentos", "{{agendamento_id}}"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "agendamentos",
+                        "{{agendamento_id}}"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
@@ -9820,12 +10033,25 @@
                     "method": "DELETE",
                     "url": {
                       "raw": "{{base_url}}/api/v1/agendamentos/{{agendamento_id}}",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "agendamentos", "{{agendamento_id}}"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "agendamentos",
+                        "{{agendamento_id}}"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de admin. Remove permanentemente o agendamento."
                   },
@@ -9854,14 +10080,31 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "agendamentos"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
                     ],
-                    "body": {"mode": "raw", "raw": "{}"},
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}"
+                    },
                     "description": "Sem Authorization header."
                   },
                   "event": [
@@ -9887,13 +10130,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "agendamentos"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
@@ -9923,13 +10183,30 @@
                     "method": "POST",
                     "url": {
                       "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "agendamentos"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "body": {
                       "mode": "raw",
@@ -9960,15 +10237,34 @@
                     "method": "PUT",
                     "url": {
                       "raw": "{{base_url}}/api/v1/agendamentos/00000000-0000-4000-a000-000000000000",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "agendamentos", "00000000-0000-4000-a000-000000000000"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "agendamentos",
+                        "00000000-0000-4000-a000-000000000000"
+                      ]
                     },
                     "header": [
-                      {"key": "Content-Type", "value": "application/json"},
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
-                    "body": {"mode": "raw", "raw": "{\"tipo\": \"inicial\"}"},
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\"tipo\": \"inicial\"}"
+                    },
                     "description": "Token de admin. UUID de agendamento inexistente."
                   },
                   "event": [
@@ -9993,12 +10289,26 @@
                     "method": "GET",
                     "url": {
                       "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/agendamentos",
-                      "host": ["{{base_url}}"],
-                      "path": ["api", "v1", "contratos", "{{contrato_id}}", "agendamentos"]
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "agendamentos"
+                      ]
                     },
                     "header": [
-                      {"key": "Accept", "value": "application/json"},
-                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
                     ],
                     "description": "Token de locatário. Locatário não pode visualizar agendamentos."
                   },
@@ -10013,6 +10323,916 @@
                           "    insomnia.test('Status HTTP deve ser 403', () => { insomnia.expect(insomnia.response.status).to.equal(403); });",
                           "    insomnia.test('sucesso deve ser false', () => { insomnia.expect(body.sucesso).to.equal(false); });",
                           "} catch (e) { insomnia.test('Body deve ser JSON valido', () => { insomnia.expect.fail(e.message); }); }"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📁 Fase 9 — Registro de Problemas",
+      "item": [
+        {
+          "name": "📂 Problemas (POST e GET /contratos/{id}/problemas | GET e PATCH /problemas/{id})",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Locatário abre problema (POST /contratos/{id}/problemas)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/problemas",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "problemas"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"comodo_id\": \"{{comodo_id}}\",\n  \"titulo\": \"Vazamento na torneira\",\n  \"descricao\": \"A torneira da sala está com vazamento constante desde ontem.\"\n}"
+                    },
+                    "description": "Token de locatário (ou admin). Registra um problema num cômodo do imóvel do contrato. O campo foto (imagem JPG/PNG ≤10 MB) pode ser enviado como multipart/form-data. Retorna 201 com o problema criado e status 'aberto'. Notifica os admins por e-mail."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "    insomnia.test('dados.status deve ser aberto', () => {",
+                          "        insomnia.expect(body.dados.status).to.equal('aberto');",
+                          "    });",
+                          "    if (body.dados && body.dados.id) {",
+                          "        pm.environment.set('problema_id', body.dados.id);",
+                          "    }",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin e locatário listam problemas do contrato (GET /contratos/{id}/problemas)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/problemas",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "problemas"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin (vê todos) ou locatário (vê apenas os seus). Retorna lista de problemas ordenada por created_at DESC."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados deve ser array', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('array');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin ou locatário busca problema por ID (GET /problemas/{id})",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin (qualquer problema) ou locatário (somente os seus). Retorna dados completos do problema."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "    insomnia.test('dados.status deve ser string', () => {",
+                          "        insomnia.expect(body.dados.status).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin altera status para em_andamento (PATCH /problemas/{id}/status)",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/status",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "status"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"em_andamento\"\n}"
+                    },
+                    "description": "Token de admin. Altera o status do problema. Valores aceitos: aberto, em_andamento, resolvido."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.status deve ser em_andamento', () => {",
+                          "        insomnia.expect(body.dados.status).to.equal('em_andamento');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Criar problema sem token → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/problemas",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "problemas"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"comodo_id\": \"{{comodo_id}}\",\n  \"titulo\": \"Teste\",\n  \"descricao\": \"Sem token de autenticacao\"\n}"
+                    },
+                    "description": "Requisição sem Authorization header. Deve retornar 401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Criar problema com body vazio → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/{{contrato_id}}/problemas",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "{{contrato_id}}",
+                        "problemas"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}"
+                    },
+                    "description": "Body vazio. Deve retornar 422 com erros de validação para comodo_id, titulo e descricao."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('erros.comodo_id deve existir', () => {",
+                          "        insomnia.expect(body.erros.comodo_id).to.be.a('string');",
+                          "    });",
+                          "    insomnia.test('erros.titulo deve existir', () => {",
+                          "        insomnia.expect(body.erros.titulo).to.be.a('string');",
+                          "    });",
+                          "    insomnia.test('erros.descricao deve existir', () => {",
+                          "        insomnia.expect(body.erros.descricao).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Criar problema — contrato inexistente → 404",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/contratos/00000000-0000-4000-a000-000000000000/problemas",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "contratos",
+                        "00000000-0000-4000-a000-000000000000",
+                        "problemas"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"comodo_id\": \"{{comodo_id}}\",\n  \"titulo\": \"Problema teste\",\n  \"descricao\": \"Contrato nao existe neste caso\"\n}"
+                    },
+                    "description": "Contrato com UUID inexistente. Deve retornar 404."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Alterar status com valor inválido → 422",
+                  "request": {
+                    "method": "PATCH",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/status",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "status"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"status_invalido\"\n}"
+                    },
+                    "description": "Status fora do enum permitido (aberto, em_andamento, resolvido). Deve retornar 422."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('erros.status deve existir', () => {",
+                          "        insomnia.expect(body.erros.status).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "📂 Atualizações de Problema (POST e GET /problemas/{id}/atualizacoes)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Admin adiciona atualização com texto (POST /problemas/{id}/atualizacoes)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/atualizacoes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "atualizacoes"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"descricao\": \"Encaminhamos um técnico para verificar o problema amanhã às 14h.\"\n}"
+                    },
+                    "description": "Token de admin. Adiciona uma atualização ao problema. A foto é opcional (multipart/form-data com campo 'foto'). Notifica o locatário por e-mail. Retorna 201 com a atualização criada."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "    insomnia.test('dados.descricao deve ser string', () => {",
+                          "        insomnia.expect(body.dados.descricao).to.be.a('string');",
+                          "    });",
+                          "    insomnia.test('dados.autor_id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.autor_id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin e locatário listam atualizações (GET /problemas/{id}/atualizacoes)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/atualizacoes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "atualizacoes"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "description": "Token de admin ou locatário (somente o seu contrato). Retorna histórico em ordem cronológica ASC."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados deve ser array', () => {",
+                          "        insomnia.expect(body.dados).to.be.an('array');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Criar atualização sem token → 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/atualizacoes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "atualizacoes"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"descricao\": \"Sem token\"\n}"
+                    },
+                    "description": "Sem Authorization header. Deve retornar 401."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve estar exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Criar atualização — locatário não tem permissão → 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/atualizacoes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "atualizacoes"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"descricao\": \"Tentativa do locatario de adicionar atualizacao\"\n}"
+                    },
+                    "description": "Token de locatário. Apenas admin pode adicionar atualizações. Deve retornar 403."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 403', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(403);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Criar atualização — descricao ausente → 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/{{problema_id}}/atualizacoes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "{{problema_id}}",
+                        "atualizacoes"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}"
+                    },
+                    "description": "Body sem o campo descricao. Deve retornar 422."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('erros.descricao deve existir', () => {",
+                          "        insomnia.expect(body.erros.descricao).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Criar atualização — problema inexistente → 404",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/problemas/00000000-0000-4000-a000-000000000000/atualizacoes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "problemas",
+                        "00000000-0000-4000-a000-000000000000",
+                        "atualizacoes"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"descricao\": \"Problema que nao existe\"\n}"
+                    },
+                    "description": "Problema com UUID inexistente. Deve retornar 404."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
                         ]
                       }
                     }

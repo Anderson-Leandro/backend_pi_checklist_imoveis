@@ -189,6 +189,22 @@ class UsuarioModel
     }
 
     /**
+     * Lista todos os usuários ativos com uma determinada role (sem paginação).
+     * Usado para notificações.
+     *
+     * @return list<array{id: string, nome: string, email: string, role: string}>
+     */
+    public function buscarPorRole(string $role): array
+    {
+        $stmt = $this->conexao->prepare(
+            'SELECT id, nome, email, role
+             FROM usuario WHERE role = :role AND ativo = 1 ORDER BY nome ASC'
+        );
+        $stmt->execute([':role' => $role]);
+        return $stmt->fetchAll() ?: [];
+    }
+
+    /**
      * Verifica se um e-mail já está em uso por outro usuário ativo.
      */
     public function emailJaCadastrado(string $email, string|null $excluirId = null): bool
