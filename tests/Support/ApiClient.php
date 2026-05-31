@@ -90,6 +90,40 @@ class ApiClient
         return new ApiResponse($status, $json);
     }
 
+    /**
+     * Faz GET e retorna resposta bruta (para download de binários como PDF).
+     *
+     * @return array{status: int, content_type: string, body_length: int, body: string}
+     */
+    public function download(string $caminho): array
+    {
+        $cabecalhos = ['Accept: */*'];
+
+        if ($this->token !== null) {
+            $cabecalhos[] = "Authorization: Bearer {$this->token}";
+        }
+
+        $ch = curl_init(self::$baseUrl . $caminho);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => $cabecalhos,
+            CURLOPT_HEADER         => false,
+            CURLOPT_TIMEOUT        => 15,
+        ]);
+
+        $corpo      = (string) curl_exec($ch);
+        $status     = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $contentType = (string) curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_close($ch);
+
+        return [
+            'status'       => $status,
+            'content_type' => $contentType,
+            'body_length'  => strlen($corpo),
+            'body'         => $corpo,
+        ];
+    }
+
     private function requisicao(string $metodo, string $url, array $corpo): ApiResponse
     {
         $cabecalhos = ['Content-Type: application/json', 'Accept: application/json'];

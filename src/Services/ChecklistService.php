@@ -11,12 +11,16 @@ use App\Exceptions\ValidacaoException;
 use App\Helpers\UsuarioAutenticado;
 use App\Helpers\Uuid;
 use App\Helpers\Validator;
+use App\Models\AceiteChecklistModel;
 use App\Models\ChecklistItemModel;
 use App\Models\ChecklistModel;
 use App\Models\ComodoModel;
 use App\Models\ContratoModel;
+use App\Models\EnderecoModel;
 use App\Models\FotoChecklistModel;
+use App\Models\ImovelModel;
 use App\Models\ItemVistoriaModel;
+use App\Models\UsuarioModel;
 use App\Services\Storage\StorageInterface;
 
 class ChecklistService
@@ -25,14 +29,19 @@ class ChecklistService
     private const TIPOS_FOTO_PERMITIDOS = ['image/jpeg', 'image/png'];
 
     public function __construct(
-        private readonly ChecklistModel     $checklistModel,
-        private readonly ChecklistItemModel $checklistItemModel,
-        private readonly FotoChecklistModel $fotoChecklistModel,
-        private readonly ContratoModel      $contratoModel,
-        private readonly ComodoModel        $comodoModel,
-        private readonly ItemVistoriaModel  $itemVistoriaModel,
-        private readonly StorageInterface   $storage,
-        private readonly LogService         $logService
+        private readonly ChecklistModel      $checklistModel,
+        private readonly ChecklistItemModel  $checklistItemModel,
+        private readonly FotoChecklistModel  $fotoChecklistModel,
+        private readonly ContratoModel       $contratoModel,
+        private readonly ComodoModel         $comodoModel,
+        private readonly ItemVistoriaModel   $itemVistoriaModel,
+        private readonly StorageInterface    $storage,
+        private readonly LogService          $logService,
+        private readonly AceiteChecklistModel $aceiteChecklistModel,
+        private readonly ImovelModel         $imovelModel,
+        private readonly EnderecoModel       $enderecoModel,
+        private readonly UsuarioModel        $usuarioModel,
+        private readonly PdfService          $pdfService
     ) {}
 
     /**
@@ -442,6 +451,165 @@ class ChecklistService
         );
 
         return $foto;
+    }
+
+    /**
+     * Registra o aceite do checklist pelo locatário.
+     * Cria registro em aceite_checklist e muda o status do checklist para 'aceito'.
+     *
+     * @return array{id: string, checklist_id: string, locatario_id: string, status: string, motivo_rejeicao: string|null, created_at: string}
+     * @throws NaoEncontradoException  Se o checklist não existir
+     * @throws AcessoNegadoException   Se o locatário não for o dono do contrato
+     * @throws RegraDeNegocioException Se o checklist não estiver com status pendente_aceite
+     */
+    public function aceitar(string $checklistId): array
+    {
+        $checklist = $this->checklistModel->buscarPorId($checklistId);
+        if ($checklist === null) {
+            throw new NaoEncontradoException('Checklist');
+        }
+
+        $usuario  = UsuarioAutenticado::obterOuFalhar();
+        $contrato = $this->contratoModel->buscarPorId($checklist['contrato_id']);
+
+        if ($contrato === null || $contrato['locatario_id'] !== $usuario['id']) {
+            throw new AcessoNegadoException('Você não tem permissão para aceitar este checklist');
+        }
+
+        if ($checklist['status'] !== 'pendente_aceite') {
+            throw new RegraDeNegocioException(
+                "Somente checklists com status 'pendente_aceite' podem ser aceitos. Status atual: '{$checklist['status']}'"
+            );
+        }
+
+        $novoId = Uuid::gerar();
+
+        $this->aceiteChecklistModel->inserir([
+            'id'              => $novoId,
+            'checklist_id'    => $checklistId,
+            'locatario_id'    => $usuario['id'],
+            'status'          => 'aceito',
+            'motivo_rejeicao' => null,
+        ]);
+
+        $this->checklistModel->atualizarStatus($checklistId, 'aceito');
+
+        $this->logService->registrar(
+            acao:       'UPDATE',
+            entidade:   'checklist',
+            entidadeId: $checklistId,
+            payload:    ['acao' => 'aceitar', 'novo_status' => 'aceito'],
+        );
+
+        return $this->aceiteChecklistModel->buscarPorChecklistId($checklistId);
+    }
+
+    /**
+     * Registra a rejeição do checklist pelo locatário.
+     * Cria registro em aceite_checklist e muda o status do checklist para 'pendente_revisao'.
+     *
+     * @param  array{motivo: string} $dados
+     * @return array{id: string, checklist_id: string, locatario_id: string, status: string, motivo_rejeicao: string, created_at: string}
+     * @throws ValidacaoException      Se o motivo não for informado
+     * @throws NaoEncontradoException  Se o checklist não existir
+     * @throws AcessoNegadoException   Se o locatário não for o dono do contrato
+     * @throws RegraDeNegocioException Se o checklist não estiver com status pendente_aceite
+     */
+    public function rejeitar(string $checklistId, array $dados): array
+    {
+        $erros = Validator::validar($dados, [
+            'motivo' => 'obrigatorio|min:3',
+        ]);
+
+        if (!empty($erros)) {
+            throw new ValidacaoException($erros);
+        }
+
+        $checklist = $this->checklistModel->buscarPorId($checklistId);
+        if ($checklist === null) {
+            throw new NaoEncontradoException('Checklist');
+        }
+
+        $usuario  = UsuarioAutenticado::obterOuFalhar();
+        $contrato = $this->contratoModel->buscarPorId($checklist['contrato_id']);
+
+        if ($contrato === null || $contrato['locatario_id'] !== $usuario['id']) {
+            throw new AcessoNegadoException('Você não tem permissão para rejeitar este checklist');
+        }
+
+        if ($checklist['status'] !== 'pendente_aceite') {
+            throw new RegraDeNegocioException(
+                "Somente checklists com status 'pendente_aceite' podem ser rejeitados. Status atual: '{$checklist['status']}'"
+            );
+        }
+
+        $novoId = Uuid::gerar();
+
+        $this->aceiteChecklistModel->inserir([
+            'id'              => $novoId,
+            'checklist_id'    => $checklistId,
+            'locatario_id'    => $usuario['id'],
+            'status'          => 'rejeitado',
+            'motivo_rejeicao' => $dados['motivo'],
+        ]);
+
+        $this->checklistModel->atualizarStatus($checklistId, 'pendente_revisao');
+
+        $this->logService->registrar(
+            acao:       'UPDATE',
+            entidade:   'checklist',
+            entidadeId: $checklistId,
+            payload:    ['acao' => 'rejeitar', 'novo_status' => 'pendente_revisao', 'motivo' => $dados['motivo']],
+        );
+
+        return $this->aceiteChecklistModel->buscarPorChecklistId($checklistId);
+    }
+
+    /**
+     * Gera o PDF do checklist.
+     * Admin acessa qualquer checklist; locatário acessa somente os do seu contrato.
+     *
+     * @return string Conteúdo binário do PDF
+     * @throws NaoEncontradoException Se o checklist não existir
+     * @throws AcessoNegadoException  Se o usuário não tiver permissão
+     */
+    public function gerarPdf(string $checklistId): string
+    {
+        $checklist = $this->checklistModel->buscarPorId($checklistId);
+        if ($checklist === null) {
+            throw new NaoEncontradoException('Checklist');
+        }
+
+        $usuario  = UsuarioAutenticado::obterOuFalhar();
+        $contrato = $this->contratoModel->buscarPorId($checklist['contrato_id']);
+
+        if ($usuario['role'] === 'vistoriador') {
+            throw new AcessoNegadoException('Vistoriadores não têm acesso ao PDF do checklist');
+        }
+
+        if ($usuario['role'] === 'locatario') {
+            if ($contrato === null || $contrato['locatario_id'] !== $usuario['id']) {
+                throw new AcessoNegadoException('Você não tem permissão para baixar este checklist');
+            }
+        }
+
+        $checklist['itens'] = $this->checklistItemModel->listarPorChecklist($checklistId);
+
+        $imovel     = $this->imovelModel->buscarPorId($contrato['imovel_id']);
+        $endereco   = $this->enderecoModel->buscarPorImovelId($contrato['imovel_id']);
+        $locatario  = $this->usuarioModel->buscarPorId($contrato['locatario_id']);
+        $vistoriador = $this->usuarioModel->buscarPorId($checklist['vistoriador_id']);
+        $aceite     = $this->aceiteChecklistModel->buscarPorChecklistId($checklistId);
+
+        return $this->pdfService->gerarChecklistPdf(
+            checklist:   $checklist,
+            contrato:    $contrato,
+            imovel:      $imovel ?? ['tipo' => 'N/A', 'tamanho' => 'N/A', 'garagem' => 0, 'garagem_vagas' => 0],
+            endereco:    $endereco,
+            locatario:   $locatario  ?? ['nome' => 'N/A', 'email' => 'N/A'],
+            vistoriador: $vistoriador ?? ['nome' => 'N/A'],
+            aceite:      $aceite
+        );
     }
 
     /**

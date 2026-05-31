@@ -87,4 +87,27 @@ class ChecklistController
         );
         Response::sucesso(null, 204);
     }
+
+    public function aceitar(array $parametros): void
+    {
+        $aceite = $this->checklistService->aceitar($parametros['id']);
+        Response::sucesso($aceite);
+    }
+
+    public function rejeitar(array $parametros): void
+    {
+        $aceite = $this->checklistService->rejeitar($parametros['id'], Requisicao::corpo());
+        Response::sucesso($aceite);
+    }
+
+    public function downloadPdf(array $parametros): void
+    {
+        $pdfBytes = $this->checklistService->gerarPdf($parametros['id']);
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="checklist-' . $parametros['id'] . '.pdf"');
+        header('Content-Length: ' . strlen($pdfBytes));
+        echo $pdfBytes;
+        exit;
+    }
 }

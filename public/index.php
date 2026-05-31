@@ -17,6 +17,7 @@ use App\Exceptions\ValidacaoException;
 use App\Helpers\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Models\AceiteChecklistModel;
 use App\Models\ChecklistItemModel;
 use App\Models\ChecklistModel;
 use App\Models\ComodoModel;
@@ -36,6 +37,7 @@ use App\Services\ImovelService;
 use App\Services\ItemVistoriaService;
 use App\Services\LogService;
 use App\Services\MfaService;
+use App\Services\PdfService;
 use App\Services\Storage\LocalStorageService;
 use App\Services\UsuarioService;
 use Dotenv\Dotenv;
@@ -76,7 +78,9 @@ $itemVistoriaController = new ItemVistoriaController($itemVistoriaService);
 $checklistModel         = new ChecklistModel($conexao);
 $checklistItemModel     = new ChecklistItemModel($conexao);
 $fotoChecklistModel     = new FotoChecklistModel($conexao);
+$aceiteChecklistModel   = new AceiteChecklistModel($conexao);
 $localStorageService    = new LocalStorageService();
+$pdfService             = new PdfService();
 $checklistService       = new ChecklistService(
     $checklistModel,
     $checklistItemModel,
@@ -85,7 +89,12 @@ $checklistService       = new ChecklistService(
     $comodoModel,
     $itemVistoriaModel,
     $localStorageService,
-    $logService
+    $logService,
+    $aceiteChecklistModel,
+    $imovelModel,
+    $enderecoModel,
+    $usuarioModel,
+    $pdfService
 );
 $checklistController    = new ChecklistController($checklistService);
 $authMiddleware         = new AuthMiddleware();
@@ -269,6 +278,20 @@ $roteador->post('/api/v1/checklists/{id}/itens/{item_id}/fotos', [$checklistCont
 $roteador->delete('/api/v1/checklists/{id}/itens/{item_id}/fotos/{foto_id}', [$checklistController, 'excluirFoto'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('vistoriador'),
+]);
+
+// ── Fase 7: aceite do checklist e download PDF ────────────────────────────────
+$roteador->post('/api/v1/checklists/{id}/aceitar', [$checklistController, 'aceitar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->post('/api/v1/checklists/{id}/rejeitar', [$checklistController, 'rejeitar'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
+]);
+$roteador->get('/api/v1/checklists/{id}/download', [$checklistController, 'downloadPdf'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('locatario'),
 ]);
 
 // ── Captura central de erros ──────────────────────────────────────────────────

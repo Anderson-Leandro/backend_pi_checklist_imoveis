@@ -9185,6 +9185,483 @@
           ]
         }
       ]
+    },
+    {
+      "name": "📁 Fase 7 — Aceite do Checklist + PDF",
+      "item": [
+        {
+          "name": "🤝 Aceite e Download (POST /aceitar | POST /rejeitar | GET /download)",
+          "item": [
+            {
+              "name": "✅ Sucessos",
+              "item": [
+                {
+                  "name": "Locatario aceita checklist (POST /aceitar)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token do locatário dono do contrato. Checklist deve estar com status 'pendente_aceite'. Muda status para 'aceito'."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.status deve ser aceito', () => {",
+                          "        insomnia.expect(body.dados.status).to.equal('aceito');",
+                          "    });",
+                          "    insomnia.test('dados.motivo_rejeicao deve ser null', () => {",
+                          "        insomnia.expect(body.dados.motivo_rejeicao).to.equal(null);",
+                          "    });",
+                          "    insomnia.test('dados.id deve ser UUID v4', () => {",
+                          "        insomnia.expect(body.dados.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario rejeita checklist com motivo (POST /rejeitar)",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/rejeitar",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "rejeitar"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"motivo\": \"Itens nao condizem com a realidade do imovel\"\n}"
+                    },
+                    "description": "Token do locatário dono do contrato. Checklist deve estar com status 'pendente_aceite'. Muda status para 'pendente_revisao'. Motivo é obrigatório."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 200', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "    insomnia.test('dados.status deve ser rejeitado', () => {",
+                          "        insomnia.expect(body.dados.status).to.equal('rejeitado');",
+                          "    });",
+                          "    insomnia.test('dados.motivo_rejeicao deve ser string', () => {",
+                          "        insomnia.expect(body.dados.motivo_rejeicao).to.be.a('string');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin baixa PDF do checklist (GET /download)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/pdf"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de admin. Gera e retorna o PDF completo do checklist como download (Content-Disposition: attachment)."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 200', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "});",
+                          "insomnia.test('Content-Type deve ser application/pdf', () => {",
+                          "    const ct = insomnia.response.headers.find(h => h.name.toLowerCase() === 'content-type');",
+                          "    insomnia.expect(ct.value).to.include('application/pdf');",
+                          "});",
+                          "insomnia.test('Content-Disposition deve ser attachment', () => {",
+                          "    const cd = insomnia.response.headers.find(h => h.name.toLowerCase() === 'content-disposition');",
+                          "    insomnia.expect(cd.value).to.include('attachment');",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Locatario baixa PDF do proprio checklist (GET /download)",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/pdf"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token do locatário dono do contrato. Baixa o PDF do checklist."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "insomnia.test('Status HTTP deve ser 200', () => {",
+                          "    insomnia.expect(insomnia.response.status).to.equal(200);",
+                          "});",
+                          "insomnia.test('Content-Type deve ser application/pdf', () => {",
+                          "    const ct = insomnia.response.headers.find(h => h.name.toLowerCase() === 'content-type');",
+                          "    insomnia.expect(ct.value).to.include('application/pdf');",
+                          "});"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "❌ Erros",
+              "item": [
+                {
+                  "name": "Aceitar sem token retorna 401",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"}
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve ser exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin nao pode aceitar (apenas locatario) retorna 403",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de admin. Role insuficiente — apenas locatário pode aceitar."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 403', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(403);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Aceitar checklist nao pendente retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/aceitar",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "aceitar"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token do locatário. Checklist já aceito ou em status diferente de 'pendente_aceite'."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Rejeitar sem motivo retorna 422",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/rejeitar",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "rejeitar"]
+                    },
+                    "header": [
+                      {"key": "Content-Type", "value": "application/json"},
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{}"
+                    },
+                    "description": "Token do locatário. Body sem campo 'motivo'. Deve retornar 422 com erro de validação."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 422', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(422);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('erros.motivo deve existir', () => {",
+                          "        insomnia.expect(body.erros).to.have.property('motivo');",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Download PDF sem token retorna 401",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/json"}
+                    ],
+                    "description": "Sem Authorization header."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 401', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(401);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "    insomnia.test('trace nao deve ser exposto', () => {",
+                          "        insomnia.expect(body.trace).to.be.undefined;",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Vistoriador nao pode baixar PDF retorna 403",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/{{checklist_id}}/download",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "{{checklist_id}}", "download"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de vistoriador. Apenas admin e locatário podem baixar o PDF."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 403', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(403);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Download PDF checklist inexistente retorna 404",
+                  "request": {
+                    "method": "GET",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/checklists/00000000-0000-4000-a000-000000000000/download",
+                      "host": ["{{base_url}}"],
+                      "path": ["api", "v1", "checklists", "00000000-0000-4000-a000-000000000000", "download"]
+                    },
+                    "header": [
+                      {"key": "Accept", "value": "application/json"},
+                      {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                    ],
+                    "description": "Token de admin. UUID de checklist que não existe."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "    insomnia.test('Status HTTP deve ser 404', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(404);",
+                          "    });",
+                          "    insomnia.test('sucesso deve ser false', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(false);",
+                          "    });",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
