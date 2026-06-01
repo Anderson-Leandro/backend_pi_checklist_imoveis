@@ -179,7 +179,7 @@ if (!existe($pdo, 'usuario', ID_LOCATARIO)) {
 
 // ─── 2. Imóvel 1 — Apartamento (será locado) ─────────────────────────────────
 
-echo "\n── Imóvel 1: Apartamento (São Paulo, SP) ─────────────────\n";
+echo "\n── Imóvel 1: Apartamento (Mauá, SP) ─────────────────────\n";
 
 if (!existe($pdo, 'imovel', ID_IMOVEL_APTO)) {
     inserir($pdo, 'imovel', [
@@ -199,18 +199,41 @@ if (!existe($pdo, 'endereco', ID_ENDERECO_APTO)) {
     inserir($pdo, 'endereco', [
         'id'          => ID_ENDERECO_APTO,
         'imovel_id'   => ID_IMOVEL_APTO,
-        'rua'         => 'Rua das Palmeiras',
-        'numero'      => '320',
+        'rua'         => 'R. Vicente Grecco',
+        'numero'      => '164',
         'complemento' => 'Apto 42',
         'bloco'       => 'B',
         'andar'       => '4º Andar',
-        'cidade'      => 'São Paulo',
+        'cidade'      => 'Mauá',
         'estado'      => 'SP',
-        'cep'         => '01310-100',
+        'cep'         => '09371-453',
+        'latitude'    => -23.6750000,
+        'longitude'   => -46.4715560,
     ]);
-    echo "[✓] Endereço: Rua das Palmeiras, 320, Apto 42, Bloco B, 4º Andar — SP\n";
+    echo "[✓] Endereço: R. Vicente Grecco, 164, Apto 42, Bloco B, 4º Andar — Mauá, SP\n";
 } else {
-    echo "[~] Endereço do Apartamento já existe, pulando.\n";
+    $stmt = $pdo->prepare(
+        'UPDATE endereco
+            SET rua = :rua, numero = :numero, complemento = :complemento,
+                bloco = :bloco, andar = :andar, cidade = :cidade,
+                estado = :estado, cep = :cep,
+                latitude = :latitude, longitude = :longitude
+          WHERE id = :id'
+    );
+    $stmt->execute([
+        'rua'         => 'R. Vicente Grecco',
+        'numero'      => '164',
+        'complemento' => 'Apto 42',
+        'bloco'       => 'B',
+        'andar'       => '4º Andar',
+        'cidade'      => 'Mauá',
+        'estado'      => 'SP',
+        'cep'         => '09371-453',
+        'latitude'    => -23.6750000,
+        'longitude'   => -46.4715560,
+        'id'          => ID_ENDERECO_APTO,
+    ]);
+    echo "[~] Endereço do Apartamento atualizado com dados e coordenadas corretos.\n";
 }
 
 $comodosApto = [
@@ -238,7 +261,7 @@ foreach ($comodosApto as [$id, $tipo, $descricao]) {
 
 // ─── 3. Imóvel 2 — Casa (disponível para locação) ────────────────────────────
 
-echo "\n── Imóvel 2: Casa (Curitiba, PR) ─────────────────────────\n";
+echo "\n── Imóvel 2: Casa (Santo André, SP) ──────────────────────\n";
 
 if (!existe($pdo, 'imovel', ID_IMOVEL_CASA)) {
     inserir($pdo, 'imovel', [
@@ -258,15 +281,34 @@ if (!existe($pdo, 'endereco', ID_ENDERECO_CASA)) {
     inserir($pdo, 'endereco', [
         'id'        => ID_ENDERECO_CASA,
         'imovel_id' => ID_IMOVEL_CASA,
-        'rua'       => 'Av. das Acácias',
-        'numero'    => '87',
-        'cidade'    => 'Curitiba',
-        'estado'    => 'PR',
-        'cep'       => '80040-200',
+        'rua'       => 'R. Aimorés',
+        'numero'    => '8',
+        'cidade'    => 'Santo André',
+        'estado'    => 'SP',
+        'cep'       => '09195-090',
+        'latitude'  => -23.6742730,
+        'longitude' => -46.5236200,
     ]);
-    echo "[✓] Endereço: Av. das Acácias, 87 — Curitiba, PR\n";
+    echo "[✓] Endereço: R. Aimorés, 8 — Santo André, SP\n";
 } else {
-    echo "[~] Endereço da Casa já existe, pulando.\n";
+    $stmt = $pdo->prepare(
+        'UPDATE endereco
+            SET rua = :rua, numero = :numero, cidade = :cidade,
+                estado = :estado, cep = :cep,
+                latitude = :latitude, longitude = :longitude
+          WHERE id = :id'
+    );
+    $stmt->execute([
+        'rua'       => 'R. Aimorés',
+        'numero'    => '8',
+        'cidade'    => 'Santo André',
+        'estado'    => 'SP',
+        'cep'       => '09195-090',
+        'latitude'  => -23.6742730,
+        'longitude' => -46.5236200,
+        'id'        => ID_ENDERECO_CASA,
+    ]);
+    echo "[~] Endereço da Casa atualizado com dados e coordenadas corretos.\n";
 }
 
 $comodosCasa = [
