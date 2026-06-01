@@ -4,3 +4,4 @@
 CLAUDE.md
 *.bak
 vendor/
+public/checklist-viewer.html
