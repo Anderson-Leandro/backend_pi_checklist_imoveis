@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Database\Conexao;
 use App\Exceptions\AcessoNegadoException;
 use App\Exceptions\NaoEncontradoException;
 use App\Exceptions\RegraDeNegocioException;
@@ -18,21 +19,21 @@ use App\Models\ImovelModel;
 class ImovelService
 {
     public function __construct(
-        private readonly ImovelModel     $imovelModel,
-        private readonly EnderecoModel   $enderecoModel,
-        private readonly ComodoModel     $comodoModel,
+        private readonly ImovelModel      $imovelModel,
+        private readonly EnderecoModel    $enderecoModel,
+        private readonly ComodoModel      $comodoModel,
         private readonly GeocodingService $geocodingService,
-        private readonly LogService      $logService
+        private readonly LogService       $logService
     ) {}
 
     // ──── Imóveis ────────────────────────────────────────────────────────────
 
     /**
-     * Cria um novo imóvel.
+     * Cria um novo imóvel, opcionalmente com endereço na mesma operação.
      *
-     * @param  array{tipo: string, tamanho: string, garagem: bool, garagem_vagas: int} $dados
-     * @return array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string}
-     * @throws ValidacaoException Se os dados forem inválidos
+     * @param  array{tipo: string, tamanho: string, garagem?: bool, garagem_vagas?: int, endereco?: array} $dados
+     * @return array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string, endereco: array|null}
+     * @throws ValidacaoException      Se os dados do imóvel ou do endereço forem inválidos
      */
     public function criar(array $dados): array
     {
@@ -45,16 +46,49 @@ class ImovelService
             throw new ValidacaoException($erros);
         }
 
+        $dadosEndereco = isset($dados['endereco']) && is_array($dados['endereco'])
+            ? $dados['endereco']
+            : null;
+
+        if ($dadosEndereco !== null) {
+            $errosEndereco = $this->validarCamposEndereco($dadosEndereco);
+            if (!empty($errosEndereco)) {
+                throw new ValidacaoException(['endereco' => $errosEndereco]);
+            }
+        }
+
         $novoId = Uuid::gerar();
-        $this->imovelModel->inserir([
+        $dadosImovel = [
             'id'            => $novoId,
             'tipo'          => $dados['tipo'],
             'tamanho'       => $dados['tamanho'],
             'garagem'       => isset($dados['garagem']) && $dados['garagem'] ? 1 : 0,
             'garagem_vagas' => (int) ($dados['garagem_vagas'] ?? 0),
-        ]);
+        ];
 
-        $imovel = $this->imovelModel->buscarPorId($novoId);
+        if ($dadosEndereco !== null) {
+            $coordenadas  = $this->geocodingService->buscarCoordenadas(
+                "{$dadosEndereco['rua']}, {$dadosEndereco['numero']}, {$dadosEndereco['cidade']}, {$dadosEndereco['estado']}, Brasil"
+            );
+            $novoEnderecoId = Uuid::gerar();
+            $registroEndereco = $this->montarRegistroEndereco($novoEnderecoId, $novoId, $dadosEndereco, $coordenadas);
+
+            $conexao = Conexao::obter();
+            $conexao->beginTransaction();
+            try {
+                $this->imovelModel->inserir($dadosImovel);
+                $this->enderecoModel->inserir($registroEndereco);
+                $conexao->commit();
+            } catch (\Throwable $e) {
+                $conexao->rollBack();
+                throw $e;
+            }
+        } else {
+            $this->imovelModel->inserir($dadosImovel);
+        }
+
+        $imovel            = $this->imovelModel->buscarPorId($novoId);
+        $imovel['endereco'] = $this->enderecoModel->buscarPorImovelId($novoId);
 
         $this->logService->registrar(
             acao:       'CREATE',
@@ -67,7 +101,7 @@ class ImovelService
     }
 
     /**
-     * Lista imóveis ativos com paginação e filtro opcional por status.
+     * Lista imóveis ativos com paginação, filtro e endereço embutido.
      *
      * @return array{itens: list<array>, total: int, pagina: int, itensPorPagina: int}
      */
@@ -79,14 +113,24 @@ class ImovelService
         $itens = $this->imovelModel->listar($pagina, $itensPorPagina, $status);
         $total = $this->imovelModel->contar($status);
 
+        if (!empty($itens)) {
+            $ids       = array_column($itens, 'id');
+            $enderecos = $this->enderecoModel->buscarPorImovelIds($ids);
+
+            $itens = array_map(function (array $imovel) use ($enderecos): array {
+                $imovel['endereco'] = $enderecos[$imovel['id']] ?? null;
+                return $imovel;
+            }, $itens);
+        }
+
         return compact('itens', 'total', 'pagina', 'itensPorPagina');
     }
 
     /**
-     * Busca um imóvel pelo ID.
+     * Busca um imóvel pelo ID com endereço embutido.
      * Admin acessa qualquer imóvel; locatário apenas o vinculado ao seu contrato ativo.
      *
-     * @return array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string}
+     * @return array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string, endereco: array|null}
      * @throws NaoEncontradoException  Se o imóvel não existir
      * @throws AcessoNegadoException   Se o locatário não tiver contrato ativo para este imóvel
      */
@@ -106,14 +150,16 @@ class ImovelService
             }
         }
 
+        $imovel['endereco'] = $this->enderecoModel->buscarPorImovelId($id);
+
         return $imovel;
     }
 
     /**
-     * Atualiza dados de um imóvel.
+     * Atualiza dados de um imóvel, opcionalmente com endereço na mesma operação.
      *
-     * @param  array{tipo?: string, tamanho?: string, garagem?: bool, garagem_vagas?: int, status?: string} $dados
-     * @return array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string}
+     * @param  array{tipo?: string, tamanho?: string, garagem?: bool, garagem_vagas?: int, status?: string, endereco?: array} $dados
+     * @return array{id: string, tipo: string, tamanho: string, garagem: int, garagem_vagas: int, status: string, created_at: string, endereco: array|null}
      * @throws NaoEncontradoException  Se o imóvel não existir
      * @throws ValidacaoException      Se os dados forem inválidos
      */
@@ -135,37 +181,90 @@ class ImovelService
             }
         }
 
+        $dadosEndereco = isset($dados['endereco']) && is_array($dados['endereco'])
+            ? $dados['endereco']
+            : null;
+
+        if ($dadosEndereco !== null) {
+            $errosEndereco = $this->validarCamposEndereco($dadosEndereco);
+            if (!empty($errosEndereco)) {
+                throw new ValidacaoException(['endereco' => $errosEndereco]);
+            }
+        }
+
         $camposPermitidos = ['tipo', 'tamanho', 'status'];
-        $campos = array_filter(
+        $camposImovel = array_filter(
             array_intersect_key($dados, array_flip($camposPermitidos)),
             fn($v) => $v !== null && $v !== ''
         );
 
         if (isset($dados['garagem'])) {
-            $campos['garagem'] = $dados['garagem'] ? 1 : 0;
+            $camposImovel['garagem'] = $dados['garagem'] ? 1 : 0;
         }
         if (isset($dados['garagem_vagas'])) {
-            $campos['garagem_vagas'] = (int) $dados['garagem_vagas'];
+            $camposImovel['garagem_vagas'] = (int) $dados['garagem_vagas'];
         }
 
-        if (!empty($campos)) {
-            $this->imovelModel->atualizar($id, $campos);
+        if (!empty($camposImovel) || $dadosEndereco !== null) {
+            $conexao = Conexao::obter();
+            $conexao->beginTransaction();
+            try {
+                if (!empty($camposImovel)) {
+                    $this->imovelModel->atualizar($id, $camposImovel);
+                }
+
+                if ($dadosEndereco !== null) {
+                    $coordenadas       = $this->geocodingService->buscarCoordenadas(
+                        "{$dadosEndereco['rua']}, {$dadosEndereco['numero']}, {$dadosEndereco['cidade']}, {$dadosEndereco['estado']}, Brasil"
+                    );
+                    $enderecoExistente = $this->enderecoModel->buscarPorImovelId($id);
+
+                    if ($enderecoExistente !== null) {
+                        $this->enderecoModel->atualizar($id, $this->montarCamposEndereco($dadosEndereco, $coordenadas));
+
+                        $this->logService->registrar(
+                            acao:       'UPDATE',
+                            entidade:   'endereco',
+                            entidadeId: $enderecoExistente['id'],
+                            payload:    ['imovel_id' => $id, 'cep' => $dadosEndereco['cep']],
+                        );
+                    } else {
+                        $novoEnderecoId = Uuid::gerar();
+                        $this->enderecoModel->inserir(
+                            $this->montarRegistroEndereco($novoEnderecoId, $id, $dadosEndereco, $coordenadas)
+                        );
+
+                        $this->logService->registrar(
+                            acao:       'CREATE',
+                            entidade:   'endereco',
+                            entidadeId: $novoEnderecoId,
+                            payload:    ['imovel_id' => $id, 'cep' => $dadosEndereco['cep']],
+                        );
+                    }
+                }
+
+                $conexao->commit();
+            } catch (\Throwable $e) {
+                $conexao->rollBack();
+                throw $e;
+            }
         }
 
-        $imovelAtualizado = $this->imovelModel->buscarPorId($id);
+        $imovelAtualizado            = $this->imovelModel->buscarPorId($id);
+        $imovelAtualizado['endereco'] = $this->enderecoModel->buscarPorImovelId($id);
 
         $this->logService->registrar(
             acao:       'UPDATE',
             entidade:   'imovel',
             entidadeId: $id,
-            payload:    $campos,
+            payload:    $camposImovel ?? [],
         );
 
         return $imovelAtualizado;
     }
 
     /**
-     * Desativa um imóvel via soft delete.
+     * Desativa um imóvel e seu endereço via soft delete em transação.
      *
      * @throws NaoEncontradoException  Se o imóvel não existir
      * @throws RegraDeNegocioException Se o imóvel tiver contrato ativo
@@ -182,7 +281,16 @@ class ImovelService
             throw new RegraDeNegocioException('Não é possível excluir um imóvel com contrato ativo (status: locado)');
         }
 
-        $this->imovelModel->desativar($id);
+        $conexao = Conexao::obter();
+        $conexao->beginTransaction();
+        try {
+            $this->enderecoModel->desativarPorImovelId($id);
+            $this->imovelModel->desativar($id);
+            $conexao->commit();
+        } catch (\Throwable $e) {
+            $conexao->rollBack();
+            throw $e;
+        }
 
         $this->logService->registrar(
             acao:       'DELETE',
@@ -192,10 +300,10 @@ class ImovelService
         );
     }
 
-    // ──── Endereço ───────────────────────────────────────────────────────────
+    // ──── Endereço (endpoints dedicados) ────────────────────────────────────
 
     /**
-     * Cria ou atualiza o endereço de um imóvel, preenchendo lat/lng via geocodificação.
+     * Cria ou atualiza o endereço de um imóvel via endpoint dedicado.
      *
      * @param  array{rua: string, numero: string, cidade: string, estado: string, cep: string, complemento?: string, bloco?: string, andar?: string} $dados
      * @return array{id: string, imovel_id: string, rua: string, numero: string, complemento: string|null, bloco: string|null, andar: string|null, cidade: string, estado: string, cep: string, latitude: string|null, longitude: string|null}
@@ -208,39 +316,19 @@ class ImovelService
             throw new NaoEncontradoException('Imóvel');
         }
 
-        $erros = Validator::validar($dados, [
-            'rua'    => 'obrigatorio|min:2|max:200',
-            'numero' => 'obrigatorio|max:20',
-            'cidade' => 'obrigatorio|min:2|max:100',
-            'estado' => 'obrigatorio|tamanho:2',
-            'cep'    => 'obrigatorio|cep',
-        ]);
+        $erros = $this->validarCamposEndereco($dados);
 
         if (!empty($erros)) {
             throw new ValidacaoException($erros);
         }
 
-        $coordenadas = $this->geocodingService->buscarCoordenadas(
+        $coordenadas       = $this->geocodingService->buscarCoordenadas(
             "{$dados['rua']}, {$dados['numero']}, {$dados['cidade']}, {$dados['estado']}, Brasil"
         );
-
         $enderecoExistente = $this->enderecoModel->buscarPorImovelId($imovelId);
 
         if ($enderecoExistente !== null) {
-            $campos = [
-                'rua'         => $dados['rua'],
-                'numero'      => $dados['numero'],
-                'complemento' => $dados['complemento'] ?? null,
-                'bloco'       => $dados['bloco']       ?? null,
-                'andar'       => $dados['andar']       ?? null,
-                'cidade'      => $dados['cidade'],
-                'estado'      => strtoupper($dados['estado']),
-                'cep'         => $dados['cep'],
-                'latitude'    => $coordenadas['latitude']  ?? null,
-                'longitude'   => $coordenadas['longitude'] ?? null,
-            ];
-
-            $this->enderecoModel->atualizar($imovelId, $campos);
+            $this->enderecoModel->atualizar($imovelId, $this->montarCamposEndereco($dados, $coordenadas));
 
             $this->logService->registrar(
                 acao:       'UPDATE',
@@ -250,20 +338,7 @@ class ImovelService
             );
         } else {
             $novoId = Uuid::gerar();
-            $this->enderecoModel->inserir([
-                'id'          => $novoId,
-                'imovel_id'   => $imovelId,
-                'rua'         => $dados['rua'],
-                'numero'      => $dados['numero'],
-                'complemento' => $dados['complemento'] ?? null,
-                'bloco'       => $dados['bloco']       ?? null,
-                'andar'       => $dados['andar']       ?? null,
-                'cidade'      => $dados['cidade'],
-                'estado'      => strtoupper($dados['estado']),
-                'cep'         => $dados['cep'],
-                'latitude'    => $coordenadas['latitude']  ?? null,
-                'longitude'   => $coordenadas['longitude'] ?? null,
-            ]);
+            $this->enderecoModel->inserir($this->montarRegistroEndereco($novoId, $imovelId, $dados, $coordenadas));
 
             $this->logService->registrar(
                 acao:       'CREATE',
@@ -277,7 +352,7 @@ class ImovelService
     }
 
     /**
-     * Retorna o endereço de um imóvel.
+     * Retorna o endereço de um imóvel via endpoint dedicado.
      *
      * @return array{id: string, imovel_id: string, rua: string, numero: string, complemento: string|null, bloco: string|null, andar: string|null, cidade: string, estado: string, cep: string, latitude: string|null, longitude: string|null}
      * @throws NaoEncontradoException  Se o imóvel ou endereço não existir
@@ -285,7 +360,6 @@ class ImovelService
      */
     public function buscarEndereco(string $imovelId): array
     {
-        // Reutiliza a verificação de acesso do imóvel
         $this->buscarPorId($imovelId);
 
         $endereco = $this->enderecoModel->buscarPorImovelId($imovelId);
@@ -425,5 +499,63 @@ class ImovelService
             entidadeId: $comodoId,
             payload:    ['imovel_id' => $imovelId, 'tipo' => $comodo['tipo']],
         );
+    }
+
+    // ──── Helpers privados ───────────────────────────────────────────────────
+
+    /**
+     * Valida os campos obrigatórios de um endereço.
+     *
+     * @param  array<string, mixed> $dados
+     * @return array<string, string>
+     */
+    private function validarCamposEndereco(array $dados): array
+    {
+        return Validator::validar($dados, [
+            'rua'    => 'obrigatorio|min:2|max:200',
+            'numero' => 'obrigatorio|max:20',
+            'cidade' => 'obrigatorio|min:2|max:100',
+            'estado' => 'obrigatorio|tamanho:2',
+            'cep'    => 'obrigatorio|cep',
+        ]);
+    }
+
+    /**
+     * Monta o array de campos para UPDATE de endereço.
+     *
+     * @param  array<string, mixed>                                        $dados
+     * @param  array{latitude?: string|null, longitude?: string|null}|null $coordenadas
+     * @return array<string, mixed>
+     */
+    private function montarCamposEndereco(array $dados, array|null $coordenadas): array
+    {
+        return [
+            'rua'         => $dados['rua'],
+            'numero'      => $dados['numero'],
+            'complemento' => $dados['complemento'] ?? null,
+            'bloco'       => $dados['bloco']       ?? null,
+            'andar'       => $dados['andar']       ?? null,
+            'cidade'      => $dados['cidade'],
+            'estado'      => strtoupper($dados['estado']),
+            'cep'         => $dados['cep'],
+            'latitude'    => $coordenadas !== null ? ($coordenadas['latitude']  ?? null) : null,
+            'longitude'   => $coordenadas !== null ? ($coordenadas['longitude'] ?? null) : null,
+        ];
+    }
+
+    /**
+     * Monta o array completo para INSERT de endereço.
+     *
+     * @param  array<string, mixed>                                        $dados
+     * @param  array{latitude?: string|null, longitude?: string|null}|null $coordenadas
+     * @return array<string, mixed>
+     */
+    private function montarRegistroEndereco(string $id, string $imovelId, array $dados, array|null $coordenadas): array
+    {
+        return [
+            'id'        => $id,
+            'imovel_id' => $imovelId,
+            ...$this->montarCamposEndereco($dados, $coordenadas),
+        ];
     }
 }

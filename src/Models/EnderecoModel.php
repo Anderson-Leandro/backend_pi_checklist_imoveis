@@ -13,7 +13,7 @@ class EnderecoModel
     ) {}
 
     /**
-     * Busca o endereço vinculado a um imóvel.
+     * Busca o endereço ativo vinculado a um imóvel.
      *
      * @return array{id: string, imovel_id: string, rua: string, numero: string, complemento: string|null, bloco: string|null, andar: string|null, cidade: string, estado: string, cep: string, latitude: string|null, longitude: string|null}|null
      */
@@ -22,10 +22,36 @@ class EnderecoModel
         $stmt = $this->conexao->prepare(
             'SELECT id, imovel_id, rua, numero, complemento, bloco, andar,
                     cidade, estado, cep, latitude, longitude
-             FROM endereco WHERE imovel_id = :imovel_id LIMIT 1'
+             FROM endereco WHERE imovel_id = :imovel_id AND ativo = 1 LIMIT 1'
         );
         $stmt->execute([':imovel_id' => $imovelId]);
         return $stmt->fetch() ?: null;
+    }
+
+    /**
+     * Busca endereços ativos de múltiplos imóveis em uma única query.
+     * Retorna array indexado por imovel_id para merge eficiente.
+     *
+     * @param  list<string> $imovelIds
+     * @return array<string, array>
+     */
+    public function buscarPorImovelIds(array $imovelIds): array
+    {
+        if (empty($imovelIds)) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($imovelIds), '?'));
+        $stmt = $this->conexao->prepare(
+            "SELECT id, imovel_id, rua, numero, complemento, bloco, andar,
+                    cidade, estado, cep, latitude, longitude
+             FROM endereco WHERE imovel_id IN ({$placeholders}) AND ativo = 1"
+        );
+        $stmt->execute($imovelIds);
+
+        $resultados = $stmt->fetchAll() ?: [];
+
+        return array_column($resultados, null, 'imovel_id');
     }
 
     /**
@@ -56,7 +82,7 @@ class EnderecoModel
     }
 
     /**
-     * Atualiza o endereço existente de um imóvel.
+     * Atualiza o endereço ativo de um imóvel.
      *
      * @param array<string, mixed> $campos
      */
@@ -72,9 +98,20 @@ class EnderecoModel
         ));
 
         $stmt = $this->conexao->prepare(
-            "UPDATE endereco SET {$atribuicoes} WHERE imovel_id = :imovel_id"
+            "UPDATE endereco SET {$atribuicoes} WHERE imovel_id = :imovel_id AND ativo = 1"
         );
 
         $stmt->execute([...$campos, 'imovel_id' => $imovelId]);
+    }
+
+    /**
+     * Realiza soft delete do endereço vinculado ao imóvel.
+     */
+    public function desativarPorImovelId(string $imovelId): void
+    {
+        $stmt = $this->conexao->prepare(
+            'UPDATE endereco SET ativo = 0 WHERE imovel_id = :imovel_id'
+        );
+        $stmt->execute([':imovel_id' => $imovelId]);
     }
 }

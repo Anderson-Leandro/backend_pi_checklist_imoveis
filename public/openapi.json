@@ -214,6 +214,65 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "endereco": {
+            "nullable": true,
+            "description": "Endereço do imóvel. null se ainda não cadastrado.",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Endereco"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "EnderecoInput": {
+        "type": "object",
+        "required": ["rua", "numero", "cidade", "estado", "cep"],
+        "properties": {
+          "rua": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "example": "Avenida Paulista"
+          },
+          "numero": {
+            "type": "string",
+            "maxLength": 20,
+            "example": "1578"
+          },
+          "complemento": {
+            "type": "string",
+            "example": "Apto 42",
+            "nullable": true
+          },
+          "bloco": {
+            "type": "string",
+            "nullable": true
+          },
+          "andar": {
+            "type": "string",
+            "nullable": true
+          },
+          "cidade": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "example": "São Paulo"
+          },
+          "estado": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "example": "SP"
+          },
+          "cep": {
+            "type": "string",
+            "pattern": "^\\d{5}-\\d{3}$",
+            "example": "01310-200"
           }
         }
       },
@@ -1654,14 +1713,40 @@
                   "garagem_vagas": {
                     "type": "integer",
                     "default": 0
+                  },
+                  "endereco": {
+                    "description": "Endereço do imóvel. Opcional na criação — pode ser cadastrado depois via POST /imoveis/{id}/endereco.",
+                    "nullable": true,
+                    "$ref": "#/components/schemas/EnderecoInput"
                   }
                 }
               },
-              "example": {
-                "tipo": "Apartamento",
-                "tamanho": "80m²",
-                "garagem": false,
-                "garagem_vagas": 0
+              "examples": {
+                "com_endereco": {
+                  "summary": "Criando imóvel com endereço",
+                  "value": {
+                    "tipo": "Apartamento",
+                    "tamanho": "80m²",
+                    "garagem": true,
+                    "garagem_vagas": 1,
+                    "endereco": {
+                      "rua": "Avenida Paulista",
+                      "numero": "1578",
+                      "cidade": "São Paulo",
+                      "estado": "SP",
+                      "cep": "01310-200"
+                    }
+                  }
+                },
+                "sem_endereco": {
+                  "summary": "Criando imóvel sem endereço",
+                  "value": {
+                    "tipo": "Casa",
+                    "tamanho": "120m²",
+                    "garagem": false,
+                    "garagem_vagas": 0
+                  }
+                }
               }
             }
           }
@@ -1682,16 +1767,51 @@
                     }
                   }
                 },
-                "example": {
-                  "sucesso": true,
-                  "dados": {
-                    "id": "b1b2c3d4-0010-4000-8000-000000000010",
-                    "tipo": "Apartamento",
-                    "tamanho": "80m²",
-                    "garagem": false,
-                    "garagem_vagas": 0,
-                    "status": "disponivel",
-                    "created_at": "2026-05-31 10:00:00"
+                "examples": {
+                  "com_endereco": {
+                    "summary": "Criado com endereço",
+                    "value": {
+                      "sucesso": true,
+                      "dados": {
+                        "id": "b1b2c3d4-0010-4000-8000-000000000010",
+                        "tipo": "Apartamento",
+                        "tamanho": "80m²",
+                        "garagem": true,
+                        "garagem_vagas": 1,
+                        "status": "disponivel",
+                        "created_at": "2026-05-31 10:00:00",
+                        "endereco": {
+                          "id": "e1e2e3e4-0010-4000-8000-000000000010",
+                          "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                          "rua": "Avenida Paulista",
+                          "numero": "1578",
+                          "complemento": null,
+                          "bloco": null,
+                          "andar": null,
+                          "cidade": "São Paulo",
+                          "estado": "SP",
+                          "cep": "01310-200",
+                          "latitude": "-23.5646162",
+                          "longitude": "-46.6523504"
+                        }
+                      }
+                    }
+                  },
+                  "sem_endereco": {
+                    "summary": "Criado sem endereço",
+                    "value": {
+                      "sucesso": true,
+                      "dados": {
+                        "id": "b1b2c3d4-0011-4000-8000-000000000011",
+                        "tipo": "Casa",
+                        "tamanho": "120m²",
+                        "garagem": false,
+                        "garagem_vagas": 0,
+                        "status": "disponivel",
+                        "created_at": "2026-05-31 10:00:00",
+                        "endereco": null
+                      }
+                    }
                   }
                 }
               }
@@ -1767,16 +1887,41 @@
                       "id": "b1b2c3d4-0010-4000-8000-000000000010",
                       "tipo": "Apartamento",
                       "tamanho": "80m²",
+                      "garagem": true,
+                      "garagem_vagas": 1,
+                      "status": "disponivel",
+                      "created_at": "2026-05-31 10:00:00",
+                      "endereco": {
+                        "id": "e1e2e3e4-0010-4000-8000-000000000010",
+                        "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                        "rua": "Avenida Paulista",
+                        "numero": "1578",
+                        "complemento": null,
+                        "bloco": null,
+                        "andar": null,
+                        "cidade": "São Paulo",
+                        "estado": "SP",
+                        "cep": "01310-200",
+                        "latitude": "-23.5646162",
+                        "longitude": "-46.6523504"
+                      }
+                    },
+                    {
+                      "id": "b1b2c3d4-0011-4000-8000-000000000011",
+                      "tipo": "Casa",
+                      "tamanho": "120m²",
                       "garagem": false,
                       "garagem_vagas": 0,
                       "status": "disponivel",
-                      "created_at": "2026-05-31 10:00:00"
+                      "created_at": "2026-05-31 10:00:00",
+                      "endereco": null
                     }
                   ],
                   "paginacao": {
-                    "total": 1,
+                    "total": 2,
                     "pagina": 1,
-                    "itensPorPagina": 20
+                    "itensPorPagina": 20,
+                    "totalPaginas": 1
                   }
                 }
               }
@@ -1870,6 +2015,37 @@
                   },
                   "garagem_vagas": {
                     "type": "integer"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["disponivel", "locado", "em_vistoria"]
+                  },
+                  "endereco": {
+                    "description": "Se enviado, cria ou atualiza o endereço do imóvel na mesma operação.",
+                    "nullable": true,
+                    "$ref": "#/components/schemas/EnderecoInput"
+                  }
+                }
+              },
+              "examples": {
+                "so_imovel": {
+                  "summary": "Atualizando apenas o imóvel",
+                  "value": {
+                    "tipo": "Casa",
+                    "status": "em_vistoria"
+                  }
+                },
+                "imovel_e_endereco": {
+                  "summary": "Atualizando imóvel e endereço juntos",
+                  "value": {
+                    "tipo": "Cobertura",
+                    "endereco": {
+                      "rua": "Rua das Flores",
+                      "numero": "99",
+                      "cidade": "Campinas",
+                      "estado": "SP",
+                      "cep": "13010-050"
+                    }
                   }
                 }
               }
@@ -1891,6 +2067,32 @@
                       "$ref": "#/components/schemas/Imovel"
                     }
                   }
+                },
+                "example": {
+                  "sucesso": true,
+                  "dados": {
+                    "id": "b1b2c3d4-0010-4000-8000-000000000010",
+                    "tipo": "Cobertura",
+                    "tamanho": "80m²",
+                    "garagem": true,
+                    "garagem_vagas": 1,
+                    "status": "disponivel",
+                    "created_at": "2026-05-31 10:00:00",
+                    "endereco": {
+                      "id": "e1e2e3e4-0010-4000-8000-000000000010",
+                      "imovel_id": "b1b2c3d4-0010-4000-8000-000000000010",
+                      "rua": "Rua das Flores",
+                      "numero": "99",
+                      "complemento": null,
+                      "bloco": null,
+                      "andar": null,
+                      "cidade": "Campinas",
+                      "estado": "SP",
+                      "cep": "13010-050",
+                      "latitude": "-22.9056",
+                      "longitude": "-47.0608"
+                    }
+                  }
                 }
               }
             }
@@ -1903,6 +2105,9 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
           }
         }
       },

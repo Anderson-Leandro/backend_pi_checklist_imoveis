@@ -57,12 +57,19 @@ afterAll(function () use (&$estado): void {
 // POST /api/v1/imoveis — criar imóvel
 // ═══════════════════════════════════════════════════════════════════════════
 
-test('admin cria imovel valido e retorna 201 com UUID', function () use (&$estado): void {
+test('admin cria imovel com endereco e retorna 201 com dados completos', function () use (&$estado): void {
     $resp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', [
         'tipo'          => 'Apartamento',
         'tamanho'       => '75m²',
         'garagem'       => true,
         'garagem_vagas' => 2,
+        'endereco'      => [
+            'rua'    => 'Avenida Paulista',
+            'numero' => '1578',
+            'cidade' => 'São Paulo',
+            'estado' => 'SP',
+            'cep'    => '01310-200',
+        ],
     ]);
 
     expect($resp->status)->toBe(201)
@@ -72,10 +79,56 @@ test('admin cria imovel valido e retorna 201 com UUID', function () use (&$estad
         ->and($resp->json('dados.tamanho'))->toBe('75m²')
         ->and($resp->json('dados.garagem'))->toBe(1)
         ->and($resp->json('dados.garagem_vagas'))->toBe(2)
-        ->and($resp->json('dados.status'))->toBe('disponivel');
+        ->and($resp->json('dados.status'))->toBe('disponivel')
+        ->and($resp->json('dados.endereco'))->toBeArray()
+        ->and($resp->json('dados.endereco.rua'))->toBe('Avenida Paulista')
+        ->and($resp->json('dados.endereco.cidade'))->toBe('São Paulo')
+        ->and($resp->json('dados.endereco.estado'))->toBe('SP')
+        ->and($resp->json('dados.endereco.cep'))->toBe('01310-200')
+        ->and($resp->json('dados.endereco.imovel_id'))->toBe($resp->json('dados.id'));
 
     $estado['imovel_id'] = $resp->json('dados.id');
 })->group('fase4', 'imoveis', 'criar');
+
+test('admin cria imovel sem endereco retorna 201 com endereco null', function () use (&$estado): void {
+    $resp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', [
+        'tipo'    => 'Casa',
+        'tamanho' => '120m²',
+    ]);
+
+    expect($resp->status)->toBe(201)
+        ->and($resp->json('sucesso'))->toBeTrue()
+        ->and(uuidValido($resp->json('dados.id')))->toBeTrue()
+        ->and($resp->json('dados.endereco'))->toBeNull();
+
+    // Limpa o imóvel criado
+    apiComToken($estado['admin_token'])->delete('/api/v1/imoveis/' . $resp->json('dados.id'));
+})->group('fase4', 'imoveis', 'criar');
+
+test('criar imovel com endereco invalido retorna 422 com erros no endereco', function (
+    string $campo,
+    mixed $valor
+) use (&$estado): void {
+    $enderecoBase = [
+        'rua' => 'Rua Válida', 'numero' => '1',
+        'cidade' => 'Cidade', 'estado' => 'SP', 'cep' => '01310-200',
+    ];
+    $resp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', [
+        'tipo'     => 'Apartamento',
+        'tamanho'  => '80m²',
+        'endereco' => array_merge($enderecoBase, [$campo => $valor]),
+    ]);
+
+    expect($resp->status)->toBe(422)
+        ->and($resp->json('sucesso'))->toBeFalse()
+        ->and($resp->json('erros.endereco'))->toBeArray()
+        ->and($resp->json("erros.endereco.{$campo}"))->toBeString()->not->toBeEmpty();
+})->with([
+    'rua ausente'      => ['rua', ''],
+    'cep sem mascara'  => ['cep', '01310200'],
+    'estado tamanho 1' => ['estado', 'S'],
+    'cidade ausente'   => ['cidade', ''],
+])->group('fase4', 'imoveis', 'criar', 'validacao');
 
 test('body vazio retorna 422 com erros nos campos obrigatorios', function () use (&$estado): void {
     $resp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', []);
@@ -147,7 +200,7 @@ test('vistoriador nao pode criar imovel e recebe 403', function () use (&$estado
 // GET /api/v1/imoveis — listar
 // ═══════════════════════════════════════════════════════════════════════════
 
-test('admin lista imoveis com paginacao completa', function () use (&$estado): void {
+test('admin lista imoveis com paginacao completa e endereco embutido', function () use (&$estado): void {
     $resp = apiComToken($estado['admin_token'])->get('/api/v1/imoveis');
 
     expect($resp->status)->toBe(200)
@@ -157,6 +210,11 @@ test('admin lista imoveis com paginacao completa', function () use (&$estado): v
         ->and($resp->json('paginacao.pagina'))->toBeInt()
         ->and($resp->json('paginacao.itensPorPagina'))->toBeInt()
         ->and($resp->json('paginacao.totalPaginas'))->toBeInt();
+
+    // Todos os itens devem ter a chave 'endereco' (pode ser null ou array)
+    foreach ($resp->json('dados') as $imovel) {
+        expect(array_key_exists('endereco', $imovel))->toBeTrue();
+    }
 })->group('fase4', 'imoveis', 'listar');
 
 test('filtro por status retorna apenas imoveis com aquele status', function (
@@ -205,14 +263,18 @@ test('locatario nao pode listar imoveis e recebe 403', function () use (&$estado
 // GET /api/v1/imoveis/{id} — buscar por ID
 // ═══════════════════════════════════════════════════════════════════════════
 
-test('admin busca imovel por id valido', function () use (&$estado): void {
+test('admin busca imovel por id valido e retorna endereco embutido', function () use (&$estado): void {
     $resp = apiComToken($estado['admin_token'])->get('/api/v1/imoveis/' . $estado['imovel_id']);
 
     expect($resp->status)->toBe(200)
         ->and($resp->json('sucesso'))->toBeTrue()
         ->and($resp->json('dados.id'))->toBe($estado['imovel_id'])
         ->and($resp->json('dados.tipo'))->toBeString()->not->toBeEmpty()
-        ->and($resp->json('dados.status'))->toBeString();
+        ->and($resp->json('dados.status'))->toBeString()
+        ->and(array_key_exists('endereco', $resp->json('dados')))->toBeTrue()
+        ->and($resp->json('dados.endereco'))->toBeArray()
+        ->and($resp->json('dados.endereco.rua'))->toBe('Avenida Paulista')
+        ->and($resp->json('dados.endereco.imovel_id'))->toBe($estado['imovel_id']);
 })->group('fase4', 'imoveis', 'buscar');
 
 test('buscar imovel inexistente retorna 404', function () use (&$estado): void {
@@ -242,7 +304,7 @@ test('locatario sem contrato ativo recebe 403 ao buscar imovel', function () use
 // PUT /api/v1/imoveis/{id} — atualizar
 // ═══════════════════════════════════════════════════════════════════════════
 
-test('admin atualiza campos do imovel', function () use (&$estado): void {
+test('admin atualiza campos do imovel e resposta inclui endereco', function () use (&$estado): void {
     $resp = apiComToken($estado['admin_token'])->put('/api/v1/imoveis/' . $estado['imovel_id'], [
         'tipo'   => 'Casa',
         'status' => 'em_vistoria',
@@ -251,8 +313,45 @@ test('admin atualiza campos do imovel', function () use (&$estado): void {
     expect($resp->status)->toBe(200)
         ->and($resp->json('sucesso'))->toBeTrue()
         ->and($resp->json('dados.tipo'))->toBe('Casa')
-        ->and($resp->json('dados.status'))->toBe('em_vistoria');
+        ->and($resp->json('dados.status'))->toBe('em_vistoria')
+        ->and(array_key_exists('endereco', $resp->json('dados')))->toBeTrue();
 })->group('fase4', 'imoveis', 'atualizar');
+
+test('admin atualiza imovel enviando endereco junto atualiza ambos', function () use (&$estado): void {
+    $resp = apiComToken($estado['admin_token'])->put('/api/v1/imoveis/' . $estado['imovel_id'], [
+        'tipo'     => 'Cobertura',
+        'endereco' => [
+            'rua'    => 'Rua das Flores',
+            'numero' => '99',
+            'cidade' => 'Campinas',
+            'estado' => 'SP',
+            'cep'    => '13010-050',
+        ],
+    ]);
+
+    expect($resp->status)->toBe(200)
+        ->and($resp->json('sucesso'))->toBeTrue()
+        ->and($resp->json('dados.tipo'))->toBe('Cobertura')
+        ->and($resp->json('dados.endereco.rua'))->toBe('Rua das Flores')
+        ->and($resp->json('dados.endereco.cidade'))->toBe('Campinas')
+        ->and($resp->json('dados.endereco.cep'))->toBe('13010-050');
+})->group('fase4', 'imoveis', 'atualizar');
+
+test('atualizar imovel com endereco invalido retorna 422', function () use (&$estado): void {
+    $resp = apiComToken($estado['admin_token'])->put('/api/v1/imoveis/' . $estado['imovel_id'], [
+        'endereco' => [
+            'rua'    => 'Rua X',
+            'numero' => '1',
+            'cidade' => 'Cidade',
+            'estado' => 'SP',
+            'cep'    => '00000000',
+        ],
+    ]);
+
+    expect($resp->status)->toBe(422)
+        ->and($resp->json('sucesso'))->toBeFalse()
+        ->and($resp->json('erros.endereco.cep'))->toBeString()->not->toBeEmpty();
+})->group('fase4', 'imoveis', 'atualizar', 'validacao');
 
 test('campo invalido na atualizacao retorna 422', function (
     string $campo,
@@ -309,7 +408,6 @@ test('admin salva endereco do imovel e retorna dados com estrutura correta', fun
         ->and($resp->json('dados.estado'))->toBe('SP')
         ->and($resp->json('dados.cep'))->toBe('01310-200');
 
-    // lat/lng podem ser null se Nominatim não responder no container
     $lat = $resp->json('dados.latitude');
     $lng = $resp->json('dados.longitude');
     expect($lat === null || is_string($lat))->toBeTrue();
@@ -599,8 +697,7 @@ test('excluir comodo inexistente retorna 404', function () use (&$estado): void 
 })->group('fase4', 'imoveis', 'comodos', 'deletar');
 
 test('excluir comodo sem token retorna 401', function () use (&$estado): void {
-    // Criar um cômodo temporário para testar o 401
-    $temp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis/' . $estado['imovel_id'] . '/comodos', [
+    $temp   = apiComToken($estado['admin_token'])->post('/api/v1/imoveis/' . $estado['imovel_id'] . '/comodos', [
         'tipo' => 'Temp',
     ]);
     $tempId = $temp->json('dados.id');
@@ -619,8 +716,7 @@ test('excluir comodo sem token retorna 401', function () use (&$estado): void {
 // ═══════════════════════════════════════════════════════════════════════════
 
 test('nao pode excluir imovel com status locado e recebe 422', function () use (&$estado): void {
-    // Criar e marcar como locado
-    $temp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', [
+    $temp   = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', [
         'tipo' => 'Temp Locado', 'tamanho' => '40m²',
     ]);
     $tempId = $temp->json('dados.id');
@@ -631,7 +727,6 @@ test('nao pode excluir imovel com status locado e recebe 422', function () use (
     expect($resp->status)->toBe(422)
         ->and($resp->json('sucesso'))->toBeFalse();
 
-    // Reverter e limpar
     apiComToken($estado['admin_token'])->put('/api/v1/imoveis/' . $tempId, ['status' => 'disponivel']);
     apiComToken($estado['admin_token'])->delete('/api/v1/imoveis/' . $tempId);
 })->group('fase4', 'imoveis', 'deletar', 'regra-negocio');
@@ -651,6 +746,36 @@ test('excluir imovel sem token retorna 401', function () use (&$estado): void {
         ->and($resp->json('sucesso'))->toBeFalse()
         ->and($resp->json('trace'))->toBeNull();
 })->group('fase4', 'imoveis', 'deletar', 'autorizacao');
+
+test('ao excluir imovel o endereco tambem e soft-deletado', function () use (&$estado): void {
+    // Cria imóvel com endereço
+    $criarResp = apiComToken($estado['admin_token'])->post('/api/v1/imoveis', [
+        'tipo'     => 'Studio',
+        'tamanho'  => '30m²',
+        'endereco' => [
+            'rua'    => 'Rua do Teste',
+            'numero' => '10',
+            'cidade' => 'São Paulo',
+            'estado' => 'SP',
+            'cep'    => '01310-200',
+        ],
+    ]);
+
+    expect($criarResp->status)->toBe(201);
+    $tempId = $criarResp->json('dados.id');
+
+    // Confirma que o endereço está acessível antes do delete
+    $antes = apiComToken($estado['admin_token'])->get('/api/v1/imoveis/' . $tempId . '/endereco');
+    expect($antes->status)->toBe(200);
+
+    // Deleta o imóvel
+    $deleteResp = apiComToken($estado['admin_token'])->delete('/api/v1/imoveis/' . $tempId);
+    expect($deleteResp->status)->toBe(204);
+
+    // Endereço deve estar inacessível via API (soft-deleted, ativo = 0)
+    $depois = apiComToken($estado['admin_token'])->get('/api/v1/imoveis/' . $tempId . '/endereco');
+    expect($depois->status)->toBe(404);
+})->group('fase4', 'imoveis', 'deletar', 'endereco');
 
 test('admin exclui imovel disponivel e retorna 204', function () use (&$estado): void {
     $resp = apiComToken($estado['admin_token'])->delete('/api/v1/imoveis/' . $estado['imovel_id']);
