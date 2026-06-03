@@ -97,17 +97,22 @@ foreach ($arquivosSql as $arquivo) {
 
 echo "  │  Banco '{$dbName}': " . count($arquivosSql) . " migration(s) aplicada(s)\n";
 
-// Rodar seed — forçar o uso do banco de teste
+// Rodar seed — forçar o uso do banco de teste e do storage local
+// (garante que os testes automatizados nunca dependam do MinIO ou S3 real)
 putenv("DB_HOST={$dbHost}");
 putenv("DB_PORT={$dbPort}");
 putenv("DB_DATABASE={$dbName}");
 putenv("DB_USERNAME={$dbUser}");
 putenv("DB_PASSWORD={$dbPass}");
-$_ENV['DB_HOST']     = $dbHost;
-$_ENV['DB_PORT']     = $dbPort;
-$_ENV['DB_DATABASE'] = $dbName;
-$_ENV['DB_USERNAME'] = $dbUser;
-$_ENV['DB_PASSWORD'] = $dbPass;
+putenv('STORAGE_DRIVER=local');
+putenv('STORAGE_LOCAL_PATH=storage/uploads');
+$_ENV['DB_HOST']          = $dbHost;
+$_ENV['DB_PORT']          = $dbPort;
+$_ENV['DB_DATABASE']      = $dbName;
+$_ENV['DB_USERNAME']      = $dbUser;
+$_ENV['DB_PASSWORD']      = $dbPass;
+$_ENV['STORAGE_DRIVER']   = 'local';
+$_ENV['STORAGE_LOCAL_PATH'] = 'storage/uploads';
 
 // Descartar singleton de conexão para que o seed use as vars corretas
 if (class_exists('App\Database\Conexao')) {

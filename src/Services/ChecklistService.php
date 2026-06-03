@@ -151,7 +151,9 @@ class ChecklistService
             }
         }
 
-        $checklist['itens'] = $this->checklistItemModel->listarPorChecklist($id);
+        $checklist['itens'] = $this->resolverUrlItens(
+            $this->checklistItemModel->listarPorChecklist($id)
+        );
 
         return $checklist;
     }
@@ -377,7 +379,9 @@ class ChecklistService
         );
 
         $itemAtualizado          = $this->checklistItemModel->buscarPorId($itemId);
-        $itemAtualizado['fotos'] = $this->fotoChecklistModel->listarPorItem($itemId);
+        $itemAtualizado['fotos'] = $this->resolverUrlFotos(
+            $this->fotoChecklistModel->listarPorItem($itemId)
+        );
 
         return $itemAtualizado;
     }
@@ -432,22 +436,28 @@ class ChecklistService
             throw new ValidacaoException(['foto' => 'Apenas arquivos JPG e PNG são permitidos']);
         }
 
-        $url    = $this->storage->store($arquivo, 'fotos/checklists');
+        $chave  = $this->storage->store($arquivo, 'fotos/checklists');
         $novoId = Uuid::gerar();
 
-        $this->fotoChecklistModel->inserir([
-            'id'               => $novoId,
-            'checklist_item_id' => $itemId,
-            'url'              => $url,
-        ]);
+        try {
+            $this->fotoChecklistModel->inserir([
+                'id'                => $novoId,
+                'checklist_item_id' => $itemId,
+                'url'               => $chave,
+            ]);
+        } catch (\Throwable $e) {
+            $this->storage->delete($chave);
+            throw $e;
+        }
 
-        $foto = $this->fotoChecklistModel->buscarPorId($novoId);
+        $foto        = $this->fotoChecklistModel->buscarPorId($novoId);
+        $foto['url'] = $this->storage->resolverUrl($foto['url']);
 
         $this->logService->registrar(
             acao:       'CREATE',
             entidade:   'foto_checklist',
             entidadeId: $novoId,
-            payload:    ['checklist_item_id' => $itemId, 'url' => $url],
+            payload:    ['checklist_item_id' => $itemId, 'chave' => $chave],
         );
 
         return $foto;
@@ -593,7 +603,9 @@ class ChecklistService
             }
         }
 
-        $checklist['itens'] = $this->checklistItemModel->listarPorChecklist($checklistId);
+        $checklist['itens'] = $this->resolverUrlItens(
+            $this->checklistItemModel->listarPorChecklist($checklistId)
+        );
 
         $imovel     = $this->imovelModel->buscarPorId($contrato['imovel_id']);
         $endereco   = $this->enderecoModel->buscarPorImovelId($contrato['imovel_id']);
@@ -657,6 +669,7 @@ class ChecklistService
         }
 
         $this->fotoChecklistModel->excluir($fotoId);
+        $this->storage->delete($foto['url']);
 
         $this->logService->registrar(
             acao:       'DELETE',
@@ -664,5 +677,21 @@ class ChecklistService
             entidadeId: $fotoId,
             payload:    ['checklist_item_id' => $itemId],
         );
+    }
+
+    private function resolverUrlFotos(array $fotos): array
+    {
+        return array_map(function (array $foto): array {
+            $foto['url'] = $this->storage->resolverUrl($foto['url']);
+            return $foto;
+        }, $fotos);
+    }
+
+    private function resolverUrlItens(array $itens): array
+    {
+        foreach ($itens as &$item) {
+            $item['fotos'] = $this->resolverUrlFotos($item['fotos'] ?? []);
+        }
+        return $itens;
     }
 }

@@ -2121,6 +2121,174 @@
                       }
                     }
                   ]
+                },
+                {
+                  "name": "Admin cria vistoriador e salva {{vistoriador_id}}",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Carlos Vistoriador\",\n  \"email\": \"carlos.vistoriador@onecheck.com\",\n  \"senha\": \"Vistoria@123\",\n  \"role\": \"vistoriador\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Admin cria um usuário com role=vistoriador. Salva o ID em {{vistoriador_id}} e o e-mail em {{vistoriador_email}} para uso nos testes de checklist e agendamento."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.role deve ser vistoriador', () => {",
+                          "        insomnia.expect(body.dados.role).to.equal('vistoriador');",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.id deve ser UUID v4 valido', () => {",
+                          "        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+                          "        insomnia.expect(body.dados.id).to.match(uuidRegex);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor senha_hash nem mfa_secret', () => {",
+                          "        insomnia.expect(body.dados.senha_hash).to.not.exist;",
+                          "        insomnia.expect(body.dados.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('vistoriador_id',    body.dados.id);",
+                          "    insomnia.environment.set('vistoriador_email', body.dados.email);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Admin cria locatario e salva {{locatario_id}}",
+                  "request": {
+                    "method": "POST",
+                    "url": {
+                      "raw": "{{base_url}}/api/v1/usuarios",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "usuarios"
+                      ]
+                    },
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"nome\": \"Ana Locataria\",\n  \"email\": \"ana.locataria@onecheck.com\",\n  \"senha\": \"Locatario@123\",\n  \"role\": \"locatario\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "description": "Admin cria um usuário com role=locatario. Salva o ID em {{locatario_id}} e o e-mail em {{locatario_email}} para uso nos testes de contratos e checklists."
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "try {",
+                          "    const body = JSON.parse(insomnia.response.body);",
+                          "",
+                          "    insomnia.test('Status HTTP deve ser 201', () => {",
+                          "        insomnia.expect(insomnia.response.status).to.equal(201);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Campo \"sucesso\" deve ser true', () => {",
+                          "        insomnia.expect(body.sucesso).to.equal(true);",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.role deve ser locatario', () => {",
+                          "        insomnia.expect(body.dados.role).to.equal('locatario');",
+                          "    });",
+                          "",
+                          "    insomnia.test('dados.id deve ser UUID v4 valido', () => {",
+                          "        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+                          "        insomnia.expect(body.dados.id).to.match(uuidRegex);",
+                          "    });",
+                          "",
+                          "    insomnia.test('Nao deve expor senha_hash nem mfa_secret', () => {",
+                          "        insomnia.expect(body.dados.senha_hash).to.not.exist;",
+                          "        insomnia.expect(body.dados.mfa_secret).to.not.exist;",
+                          "    });",
+                          "",
+                          "    insomnia.environment.set('locatario_id',    body.dados.id);",
+                          "    insomnia.environment.set('locatario_email', body.dados.email);",
+                          "",
+                          "} catch (e) {",
+                          "    insomnia.test('Body deve ser JSON valido', () => {",
+                          "        insomnia.expect.fail('Resposta nao e JSON valido: ' + e.message);",
+                          "    });",
+                          "}"
+                        ]
+                      }
+                    }
+                  ]
                 }
               ]
             },

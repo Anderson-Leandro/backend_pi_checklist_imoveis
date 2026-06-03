@@ -24,12 +24,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Database\Conexao;
+use App\Services\Storage\StorageFactory;
 use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
-$pdo = Conexao::obter();
+$pdo     = Conexao::obter();
+$storage = StorageFactory::criar();
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -536,9 +538,6 @@ if (!existe($pdo, 'atualizacao_problema', ID_ATUALIZACAO_3)) {
 
 echo "\n── Fotos do checklist ────────────────────────────────────\n";
 
-$baseUrl = rtrim(getenv('APP_URL') ?: 'http://localhost:8000', '/');
-$pastaFotos = 'fotos/checklists';
-
 $fotosChecklist = [
     [ID_FOTO_1, ID_CK_ITEM_1],
     [ID_FOTO_2, ID_CK_ITEM_2],
@@ -548,20 +547,36 @@ $fotosChecklist = [
     [ID_FOTO_6, ID_CK_ITEM_6],
 ];
 
-foreach ($fotosChecklist as [$idFoto, $idItem]) {
-    if (!existe($pdo, 'foto_checklist', $idFoto)) {
-        $nomeArquivo = "{$idFoto}.jpg";
-        $url = "{$baseUrl}/storage/uploads/{$pastaFotos}/{$nomeArquivo}";
+$assetPlaceholder = __DIR__ . '/assets/placeholder.jpg';
 
-        inserir($pdo, 'foto_checklist', [
-            'id'                => $idFoto,
-            'checklist_item_id' => $idItem,
-            'url'               => $url,
-        ]);
-        echo "[✓] Foto vinculada ao item {$idItem}\n";
-    } else {
-        echo "[~] Foto {$idFoto} já existe, pulando.\n";
+foreach ($fotosChecklist as [$idFoto, $idItem]) {
+    if (existe($pdo, 'foto_checklist', $idFoto)) {
+        echo "[~] Foto {$idFoto} já existe no banco, pulando.\n";
+        continue;
     }
+
+    // Chave determinística — garante idempotência mesmo sem registro no banco
+    $chave = 'fotos/checklists/' . $idFoto . '.jpg';
+
+    if (!$storage->exists($chave)) {
+        $storage->storeWithKey([
+            'name'     => 'placeholder.jpg',
+            'tmp_name' => $assetPlaceholder,
+            'size'     => filesize($assetPlaceholder),
+            'type'     => 'image/jpeg',
+            'error'    => UPLOAD_ERR_OK,
+        ], $chave);
+        echo "[✓] Arquivo enviado ao storage: {$chave}\n";
+    } else {
+        echo "[~] Arquivo já existe no storage: {$chave}\n";
+    }
+
+    inserir($pdo, 'foto_checklist', [
+        'id'                => $idFoto,
+        'checklist_item_id' => $idItem,
+        'url'               => $chave,
+    ]);
+    echo "[✓] Foto vinculada ao item {$idItem}\n";
 }
 
 // ─── 12. API Key para testes ─────────────────────────────────────────────────

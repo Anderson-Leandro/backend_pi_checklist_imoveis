@@ -75,23 +75,30 @@ class ProblemaService
             throw new NaoEncontradoException('Cômodo');
         }
 
-        $fotoUrl = null;
+        $fotoChave = null;
         if ($arquivo !== null && isset($arquivo['error']) && $arquivo['error'] !== UPLOAD_ERR_NO_FILE) {
-            $fotoUrl = $this->processarFoto($arquivo);
+            $fotoChave = $this->processarFoto($arquivo);
         }
 
         $novoId = Uuid::gerar();
 
-        $this->problemaModel->inserir([
-            'id'          => $novoId,
-            'contrato_id' => $contratoId,
-            'comodo_id'   => $dados['comodo_id'],
-            'titulo'      => $dados['titulo'],
-            'descricao'   => $dados['descricao'],
-            'foto_url'    => $fotoUrl,
-        ]);
+        try {
+            $this->problemaModel->inserir([
+                'id'          => $novoId,
+                'contrato_id' => $contratoId,
+                'comodo_id'   => $dados['comodo_id'],
+                'titulo'      => $dados['titulo'],
+                'descricao'   => $dados['descricao'],
+                'foto_url'    => $fotoChave,
+            ]);
+        } catch (\Throwable $e) {
+            if ($fotoChave !== null) {
+                $this->storage->delete($fotoChave);
+            }
+            throw $e;
+        }
 
-        $problema = $this->problemaModel->buscarPorId($novoId);
+        $problema = $this->resolverUrlFotoProblema($this->problemaModel->buscarPorId($novoId));
 
         $this->logService->registrar(
             acao:       'CREATE',
@@ -136,7 +143,10 @@ class ProblemaService
             throw new AcessoNegadoException('Você não tem acesso a este contrato');
         }
 
-        return $this->problemaModel->listarPorContrato($contratoId);
+        return array_map(
+            [$this, 'resolverUrlFotoProblema'],
+            $this->problemaModel->listarPorContrato($contratoId)
+        );
     }
 
     /**
@@ -164,7 +174,7 @@ class ProblemaService
             throw new AcessoNegadoException('Você não tem acesso a este problema');
         }
 
-        return $problema;
+        return $this->resolverUrlFotoProblema($problema);
     }
 
     /**
@@ -199,7 +209,7 @@ class ProblemaService
             payload:    ['status_anterior' => $problema['status'], 'status_novo' => $dados['status']],
         );
 
-        return $this->problemaModel->buscarPorId($id);
+        return $this->resolverUrlFotoProblema($this->problemaModel->buscarPorId($id));
     }
 
     /**
@@ -226,23 +236,30 @@ class ProblemaService
             throw new NaoEncontradoException('Problema');
         }
 
-        $fotoUrl = null;
+        $fotoChave = null;
         if ($arquivo !== null && isset($arquivo['error']) && $arquivo['error'] !== UPLOAD_ERR_NO_FILE) {
-            $fotoUrl = $this->processarFoto($arquivo);
+            $fotoChave = $this->processarFoto($arquivo);
         }
 
         $autor   = UsuarioAutenticado::obterOuFalhar();
         $novoId  = Uuid::gerar();
 
-        $this->atualizacaoModel->inserir([
-            'id'          => $novoId,
-            'problema_id' => $problemaId,
-            'autor_id'    => $autor['id'],
-            'descricao'   => $dados['descricao'],
-            'foto_url'    => $fotoUrl,
-        ]);
+        try {
+            $this->atualizacaoModel->inserir([
+                'id'          => $novoId,
+                'problema_id' => $problemaId,
+                'autor_id'    => $autor['id'],
+                'descricao'   => $dados['descricao'],
+                'foto_url'    => $fotoChave,
+            ]);
+        } catch (\Throwable $e) {
+            if ($fotoChave !== null) {
+                $this->storage->delete($fotoChave);
+            }
+            throw $e;
+        }
 
-        $atualizacao = $this->atualizacaoModel->buscarPorId($novoId);
+        $atualizacao = $this->resolverUrlFotoAtualizacao($this->atualizacaoModel->buscarPorId($novoId));
 
         $this->logService->registrar(
             acao:       'CREATE',
@@ -291,7 +308,32 @@ class ProblemaService
             throw new AcessoNegadoException('Você não tem acesso a este problema');
         }
 
-        return $this->atualizacaoModel->listarPorProblema($problemaId);
+        return array_map(
+            [$this, 'resolverUrlFotoAtualizacao'],
+            $this->atualizacaoModel->listarPorProblema($problemaId)
+        );
+    }
+
+    private function resolverUrlFotoProblema(array|null $problema): array|null
+    {
+        if ($problema === null) {
+            return null;
+        }
+
+        if ($problema['foto_url'] !== null) {
+            $problema['foto_url'] = $this->storage->resolverUrl($problema['foto_url']);
+        }
+
+        return $problema;
+    }
+
+    private function resolverUrlFotoAtualizacao(array $atualizacao): array
+    {
+        if ($atualizacao['foto_url'] !== null) {
+            $atualizacao['foto_url'] = $this->storage->resolverUrl($atualizacao['foto_url']);
+        }
+
+        return $atualizacao;
     }
 
     private function processarFoto(array $arquivo): string

@@ -53,8 +53,52 @@ services:
     networks:
       - php_network
 
+  # ─── MinIO (S3-compatible para desenvolvimento e testes) ───────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: php_minio
+    restart: unless-stopped
+    ports:
+      - "9010:9000"   # API S3 — endpoint usado pelo SDK
+      - "9011:9001"   # Console web — acesse http://localhost:9011
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - php_network
+
+  # ─── Inicialização do bucket MinIO ─────────────────────────────────────────
+  minio-init:
+    image: minio/mc:latest
+    container_name: php_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-minioadmin} $${MINIO_ROOT_PASSWORD:-minioadmin} &&
+        mc mb local/$${AWS_BUCKET:-onecheck-dev} --ignore-existing &&
+        echo '[✓] Bucket $${AWS_BUCKET:-onecheck-dev} pronto.'
+      "
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_BUCKET: ${AWS_BUCKET:-onecheck-dev}
+    networks:
+      - php_network
+
 volumes:
   mysql_data:
+    driver: local
+  minio_data:
     driver: local
 
 networks:

@@ -55,7 +55,7 @@ use App\Services\NotificationService;
 use App\Services\PdfService;
 use App\Services\ProblemaService;
 use App\Services\PublicService;
-use App\Services\Storage\LocalStorageService;
+use App\Services\Storage\StorageFactory;
 use App\Services\UsuarioService;
 use Dotenv\Dotenv;
 
@@ -96,7 +96,7 @@ $checklistModel         = new ChecklistModel($conexao);
 $checklistItemModel     = new ChecklistItemModel($conexao);
 $fotoChecklistModel     = new FotoChecklistModel($conexao);
 $aceiteChecklistModel   = new AceiteChecklistModel($conexao);
-$localStorageService    = new LocalStorageService();
+$storageService         = StorageFactory::criar();
 $pdfService             = new PdfService();
 $checklistService       = new ChecklistService(
     $checklistModel,
@@ -105,7 +105,7 @@ $checklistService       = new ChecklistService(
     $contratoModel,
     $comodoModel,
     $itemVistoriaModel,
-    $localStorageService,
+    $storageService,
     $logService,
     $aceiteChecklistModel,
     $imovelModel,
@@ -125,7 +125,7 @@ $problemaService        = new ProblemaService(
     $atualizacaoProblemaModel,
     $contratoModel,
     $comodoModel,
-    $localStorageService,
+    $storageService,
     $logService,
     $notificationService
 );
