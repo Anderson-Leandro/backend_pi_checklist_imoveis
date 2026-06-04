@@ -1,0 +1,56 @@
+services:
+
+  app:
+    volumes:
+      - .:/var/www/html
+      - vendor_dev:/var/www/html/vendor
+
+  nginx:
+    volumes:
+      - .:/var/www/html
+
+  minio:
+    image: minio/minio:latest
+    container_name: php_minio
+    restart: unless-stopped
+    ports:
+      - "9010:9000"
+      - "9011:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - php_network
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: php_minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-minioadmin} $${MINIO_ROOT_PASSWORD:-minioadmin} &&
+        mc mb local/$${AWS_BUCKET:-onecheck-dev} --ignore-existing &&
+        echo '[✓] Bucket $${AWS_BUCKET:-onecheck-dev} pronto.'
+      "
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-minioadmin}
+      AWS_BUCKET: ${AWS_BUCKET:-onecheck-dev}
+    networks:
+      - php_network
+
+volumes:
+  minio_data:
+    driver: local
+  vendor_dev:
+    driver: local

@@ -1,0 +1,10 @@
+services:
+
+  app:
+    volumes:
+      - ./.env:/var/www/html/.env:ro
+
+  nginx:
+    volumes:
+      - ./public:/var/www/html/public
+      - ./storage/uploads:/var/www/html/storage/uploads

@@ -1,0 +1,8 @@
+vendor/
+.env
+.env.test
+.git
+.github
+.claude
+docker-compose.override.yml
+docker-compose.prod.yml
