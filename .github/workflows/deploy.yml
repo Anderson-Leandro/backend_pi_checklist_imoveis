@@ -37,7 +37,8 @@ jobs:
             else
               cd $REPO_DIR
               git remote set-url origin $REPO_URL
-              git pull origin main
+              git fetch origin main
+              git reset --hard origin/main
             fi
 
             cd $REPO_DIR
