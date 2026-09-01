@@ -49,6 +49,14 @@ class AuthService
         }
 
         if ((bool) $usuario['mfa_ativo']) {
+            // secret ausente → usuário ainda não configurou o TOTP, forçar setup
+            if ($usuario['mfa_secret'] === null || $usuario['mfa_secret'] === '') {
+                return [
+                    'mfa_setup_required' => true,
+                    'temp_token'         => $this->gerarTempToken($usuario['id']),
+                ];
+            }
+
             return [
                 'mfa_required' => true,
                 'temp_token'   => $this->gerarTempToken($usuario['id']),
@@ -102,6 +110,68 @@ class AuthService
             entidade:   'usuario',
             entidadeId: $usuario['id'],
             payload:    ['email' => $usuario['email'], 'role' => $usuario['role'], 'via' => 'mfa'],
+            usuarioId:  $usuario['id'],
+        );
+
+        return $this->montarRespostaDeToken($usuario);
+    }
+
+    /**
+     * Gera o QR code TOTP para o fluxo de setup obrigatório no login.
+     * Recebe o temp_token (tipo temp_mfa) em vez de um access_token.
+     *
+     * @throws NaoAutorizadoException Se o temp_token for inválido ou expirado
+     * @throws NaoEncontradoException Se o usuário não existir
+     */
+    public function setupLogin(array $dados): array
+    {
+        $erros = Validator::validar($dados, ['temp_token' => 'obrigatorio']);
+        if (!empty($erros)) {
+            throw new ValidacaoException($erros);
+        }
+
+        $payload   = $this->decodificarToken($dados['temp_token'], tipoEsperado: 'temp_mfa');
+        $usuarioId = $payload->sub;
+        $email     = $this->buscarEmailPorId($usuarioId);
+
+        return $this->mfaService->configurar($usuarioId, $email);
+    }
+
+    /**
+     * Valida o código TOTP configurado durante o login, ativa o MFA e devolve os tokens.
+     * Completa o login em um único passo após o setup obrigatório.
+     *
+     * @throws ValidacaoException     Se os dados forem inválidos
+     * @throws NaoAutorizadoException Se o temp_token ou o código forem inválidos
+     * @throws NaoEncontradoException Se o usuário não existir
+     */
+    public function ativarLogin(array $dados): array
+    {
+        $erros = Validator::validar($dados, [
+            'temp_token' => 'obrigatorio',
+            'codigo'     => 'obrigatorio|tamanho:6',
+        ]);
+        if (!empty($erros)) {
+            throw new ValidacaoException($erros);
+        }
+
+        $payload   = $this->decodificarToken($dados['temp_token'], tipoEsperado: 'temp_mfa');
+        $usuarioId = $payload->sub;
+
+        $this->mfaService->ativar($usuarioId, $dados['codigo']);
+
+        $email   = $this->buscarEmailPorId($usuarioId);
+        $usuario = $this->usuarioModel->buscarPorEmailComCredenciais($email);
+
+        if ($usuario === null) {
+            throw new NaoEncontradoException('Usuário');
+        }
+
+        $this->logService->registrarComUsuario(
+            acao:       'LOGIN',
+            entidade:   'usuario',
+            entidadeId: $usuario['id'],
+            payload:    ['email' => $usuario['email'], 'role' => $usuario['role'], 'via' => 'mfa_setup'],
             usuarioId:  $usuario['id'],
         );
 

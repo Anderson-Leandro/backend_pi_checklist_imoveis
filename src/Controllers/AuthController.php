@@ -65,4 +65,45 @@ class AuthController
         $this->mfaService->desativar($usuarioId);
         Response::sucesso(['mensagem' => 'MFA desativado com sucesso']);
     }
+
+    /**
+     * Habilita o MFA para o próprio usuário autenticado.
+     * O TOTP deverá ser configurado no próximo login (se ainda não houver secret).
+     */
+    public function habilitarMfaSelf(array $parametros): void
+    {
+        $usuario = UsuarioAutenticado::obterOuFalhar();
+        $this->mfaService->habilitar($usuario['id']);
+        Response::sucesso(['mensagem' => 'MFA habilitado. Configure o autenticador no próximo login.']);
+    }
+
+    /**
+     * Desativa o MFA do próprio usuário autenticado e apaga o secret TOTP.
+     */
+    public function desabilitarMfaSelf(array $parametros): void
+    {
+        $usuario = UsuarioAutenticado::obterOuFalhar();
+        $this->mfaService->desativar($usuario['id']);
+        Response::sucesso(['mensagem' => 'MFA desativado com sucesso']);
+    }
+
+    /**
+     * Gera QR code TOTP para o fluxo de setup obrigatório durante o login.
+     * Usa temp_token (retornado no login quando mfa_setup_required = true).
+     */
+    public function setupLoginMfa(array $parametros): void
+    {
+        $resultado = $this->authService->setupLogin(Requisicao::query());
+        Response::sucesso($resultado);
+    }
+
+    /**
+     * Valida o código TOTP, ativa o MFA e retorna os tokens de acesso.
+     * Completa o login para usuários que precisavam configurar o MFA.
+     */
+    public function ativarLoginMfa(array $parametros): void
+    {
+        $resultado = $this->authService->ativarLogin(Requisicao::corpo());
+        Response::sucesso($resultado);
+    }
 }

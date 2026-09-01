@@ -6,12 +6,14 @@ namespace App\Controllers;
 
 use App\Helpers\Requisicao;
 use App\Helpers\Response;
+use App\Services\MfaService;
 use App\Services\UsuarioService;
 
 class UsuarioController
 {
     public function __construct(
-        private readonly UsuarioService $usuarioService
+        private readonly UsuarioService $usuarioService,
+        private readonly MfaService     $mfaService,
     ) {}
 
     public function criar(array $parametros): void
@@ -65,5 +67,24 @@ class UsuarioController
     {
         $this->usuarioService->alterarSenha(Requisicao::corpo());
         Response::sucesso(['mensagem' => 'Senha alterada com sucesso']);
+    }
+
+    /**
+     * Habilita o MFA para um usuário específico (admin).
+     * O secret TOTP existente é preservado; se não houver, o login forçará a configuração.
+     */
+    public function habilitarMfa(array $parametros): void
+    {
+        $this->mfaService->habilitar($parametros['id']);
+        Response::sucesso(['mensagem' => 'MFA habilitado para o usuário']);
+    }
+
+    /**
+     * Desabilita o MFA de um usuário específico (admin) e apaga o secret TOTP.
+     */
+    public function desabilitarMfa(array $parametros): void
+    {
+        $this->mfaService->desativar($parametros['id']);
+        Response::sucesso(['mensagem' => 'MFA desabilitado para o usuário']);
     }
 }

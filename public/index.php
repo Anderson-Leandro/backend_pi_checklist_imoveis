@@ -79,7 +79,7 @@ $mfaService        = new MfaService($usuarioModel, $logService);
 $authService       = new AuthService($usuarioModel, $refreshTokenModel, $logService, $mfaService);
 $authController    = new AuthController($authService, $mfaService);
 $usuarioService    = new UsuarioService($usuarioModel, $logService);
-$usuarioController = new UsuarioController($usuarioService);
+$usuarioController = new UsuarioController($usuarioService, $mfaService);
 $imovelModel       = new ImovelModel($conexao);
 $enderecoModel     = new EnderecoModel($conexao);
 $comodoModel       = new ComodoModel($conexao);
@@ -208,6 +208,18 @@ $roteador->post('/api/v1/auth/mfa/disable', [$authController, 'desativarMfa'], [
     $roleMiddleware->verificar('admin'),
 ]);
 
+// Auto-gestão de MFA pelo próprio usuário autenticado
+$roteador->post('/api/v1/auth/mfa/habilitar', [$authController, 'habilitarMfaSelf'], [
+    [$authMiddleware, 'verificar'],
+]);
+$roteador->post('/api/v1/auth/mfa/desabilitar', [$authController, 'desabilitarMfaSelf'], [
+    [$authMiddleware, 'verificar'],
+]);
+
+// Fluxo de setup obrigatório durante o login (usa temp_token, sem Bearer)
+$roteador->get('/api/v1/auth/mfa/setup-login',    [$authController, 'setupLoginMfa']);
+$roteador->post('/api/v1/auth/mfa/activate-login', [$authController, 'ativarLoginMfa']);
+
 // ── Fase 3: usuários ──────────────────────────────────────────────────────────
 // Rotas fixas (/me, /me/senha) devem vir antes da rota dinâmica (/{id})
 $roteador->get('/api/v1/usuarios/me', [$usuarioController, 'obterPerfil'], [
@@ -233,6 +245,16 @@ $roteador->put('/api/v1/usuarios/{id}', [$usuarioController, 'atualizar'], [
     $roleMiddleware->verificar('admin'),
 ]);
 $roteador->delete('/api/v1/usuarios/{id}', [$usuarioController, 'excluir'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+
+// Gestão de MFA de um usuário pelo admin
+$roteador->post('/api/v1/usuarios/{id}/mfa/habilitar', [$usuarioController, 'habilitarMfa'], [
+    [$authMiddleware, 'verificar'],
+    $roleMiddleware->verificar('admin'),
+]);
+$roteador->post('/api/v1/usuarios/{id}/mfa/desabilitar', [$usuarioController, 'desabilitarMfa'], [
     [$authMiddleware, 'verificar'],
     $roleMiddleware->verificar('admin'),
 ]);

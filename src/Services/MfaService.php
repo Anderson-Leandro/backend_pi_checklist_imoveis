@@ -60,6 +60,37 @@ class MfaService
         );
     }
 
+    /**
+     * Habilita o MFA para um usuário (não limpa o secret existente).
+     * Se já havia secret, o usuário poderá usar o mesmo app autenticador.
+     * Se não havia secret, o próximo login exigirá a configuração do TOTP.
+     *
+     * @throws NaoEncontradoException Se o usuário não existir
+     */
+    public function habilitar(string $usuarioId): void
+    {
+        $usuario = $this->usuarioModel->buscarPorId($usuarioId);
+
+        if ($usuario === null) {
+            throw new NaoEncontradoException('Usuário');
+        }
+
+        $this->usuarioModel->ativarMfa($usuarioId);
+
+        $this->logService->registrar(
+            acao:       'MFA_HABILITADO',
+            entidade:   'usuario',
+            entidadeId: $usuarioId,
+        );
+    }
+
+    /**
+     * Desativa o MFA e apaga o secret TOTP do usuário.
+     * Na próxima ativação o usuário precisará reconfigurar o autenticador.
+     *
+     * @throws ValidacaoException     Se o UUID for inválido
+     * @throws NaoEncontradoException Se o usuário não existir
+     */
     public function desativar(string $usuarioId): void
     {
         if (!Uuid::valido($usuarioId)) {
