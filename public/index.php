@@ -68,6 +68,18 @@ header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 
+// CORS — deve vir antes do roteador para cobrir também o preflight OPTIONS
+$origemPermitida = $_ENV['CORS_ALLOW_ORIGIN'] ?? '*';
+header('Access-Control-Allow-Origin: ' . $origemPermitida);
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key');
+header('Access-Control-Max-Age: 86400');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 $uri    = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/') ?: '/';
 $metodo = $_SERVER['REQUEST_METHOD'];
 
